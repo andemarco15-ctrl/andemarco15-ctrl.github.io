@@ -825,25 +825,27 @@
   }
 
   // ---------- Routing ----------
-  const HASH = { dashboard: '#/', subjects: '#/subjects', users: '#/users', study: '#/study', results: '#/study/results', questions: '#/questions' };
-  const VIEW_IDS = { dashboard: 'view-dashboard', subjects: 'view-subjects', users: 'view-users', study: 'view-study', session: 'view-session', results: 'view-results', questions: 'view-questions' };
+  const HASH = { dashboard: '#/', subjects: '#/subjects', test: '#/test', users: '#/users', study: '#/study', results: '#/study/results', questions: '#/questions' };
+  const VIEW_IDS = { dashboard: 'view-dashboard', subjects: 'view-subjects', test: 'view-test', users: 'view-users', study: 'view-study', session: 'view-session', results: 'view-results', questions: 'view-questions' };
   const SITE_NAME = 'Preflight';
   const TITLES = {
     dashboard: 'Dashboard',
     subjects: 'Subjects',
+    test: 'The test',
     users: 'Manage users',
     study: 'Study cards',
     session: 'Studying',
     results: 'Session results',
     questions: 'All questions',
   };
-  const HEADINGS = { dashboard: '#dash-title', subjects: '#subjects-title', users: '#users-title', study: '#study-title', results: '#results-title', questions: '#questions-title' };
+  const HEADINGS = { dashboard: '#dash-title', subjects: '#subjects-title', test: '#test-title', users: '#users-title', study: '#study-title', results: '#results-title', questions: '#questions-title' };
 
   function parseHash() {
     let h = location.hash || '';
     try { h = decodeURIComponent(h); } catch (e) { /* malformed escape: use the raw hash */ }
     const raw = h.replace(/^#\/?/, '').replace(/\/+$/, '').toLowerCase();
     if (raw === 'subjects') return 'subjects';
+    if (raw === 'test') return 'test';
     if (raw === 'users') return 'users';
     if (raw === 'study') return 'study';
     if (raw === 'study/results') return 'results';
@@ -886,7 +888,7 @@
     document.body.dataset.view = view;
     document.body.classList.toggle('in-session', view === 'session');
     document.title = `${TITLES[view] || 'Dashboard'} | ${SITE_NAME}`;
-    const navKey = view === 'dashboard' || view === 'subjects' ? 'dashboard' : view === 'questions' ? 'questions' : 'study';
+    const navKey = view === 'dashboard' || view === 'subjects' ? 'dashboard' : view === 'questions' ? 'questions' : view === 'test' ? 'test' : view === 'users' ? '' : 'study';
     for (const a of $$('[data-nav]')) {
       if (a.dataset.nav === navKey) a.setAttribute('aria-current', 'page');
       else a.removeAttribute('aria-current');
@@ -897,6 +899,7 @@
     if (view === 'dashboard') renderDashboard();
     else if (view === 'subjects') renderSubjectsPage();
     else if (view === 'users') renderUsersPage();
+    else if (view === 'test') renderTestPage();
     else if (view === 'study') renderStudy();
     else if (view === 'session') renderSession({ focus: moveFocus ? 'question' : 'none' });
     else if (view === 'results') {
@@ -1035,6 +1038,56 @@
     const hist = state.history.slice(0, 5);
     $('#dash-history').hidden = hist.length === 0;
     $('#dash-history-list').innerHTML = hist.map(historyRow).join('');
+  }
+
+  // Facts about the FAA knowledge test, kept in one place so they're easy to check.
+  const EXAM_FACTS = [
+    ['Questions', '60', 'multiple choice, three answers each'],
+    ['Time limit', '2 hours', 'plenty for most people'],
+    ['To pass', '70%', 'that is 42 of 60 correct'],
+    ['If you fail', '14 days', 'before you can retake it'],
+  ];
+  const EXAM_NOTES = [
+    'You take the initial knowledge test (the “UAG”) in person at an FAA-approved knowledge testing center. The center sets its own fee, so check the current amount when you book.',
+    'You get your score right after you finish. A passing result stays valid for 24 calendar months when you apply for the certificate.',
+    'Some questions refer to figures, such as a section of a sectional chart, supplied in a booklet at the testing center.',
+  ];
+  const BEFORE_AFTER = [
+    ['Before you go', [
+      'Be at least <b>16 years old</b>.',
+      'Be able to read, speak, write, and understand English.',
+      'Be in a physical and mental condition to fly safely.',
+      'Create an IACRA account to get an FAA Tracking Number (FTN), then book a seat at a testing center.',
+      'Bring a government-issued photo ID.',
+    ]],
+    ['After you pass', [
+      'Apply for the Remote Pilot Certificate in <b>IACRA</b> (FAA Form 8710-13).',
+      'The TSA runs a security background check.',
+      'Print a temporary certificate once it clears; the permanent card comes by mail.',
+      'Keep it current with free online recurrent training every <b>24 calendar months</b>.',
+      'Register your drone and follow the Remote ID rules before you fly.',
+    ]],
+  ];
+  const OFFICIAL_LINKS = [
+    ['https://www.faa.gov/uas/commercial_operators/become_a_drone_pilot', 'Become a drone pilot (FAA)'],
+    ['https://www.faa.gov/sites/faa.gov/files/training_testing/testing/acs/uas_acs.pdf', 'Airman Certification Standards, what the test covers'],
+    ['https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107', '14 CFR Part 107, the rules themselves'],
+    ['https://iacra.faa.gov/IACRA/', 'IACRA, where you apply for the certificate'],
+  ];
+
+  function renderTestPage() {
+    $('#exam-facts').innerHTML = EXAM_FACTS.map(([label, value, note]) =>
+      `<div><dt>${esc(label)}</dt><dd>${esc(value)}</dd><p class="fact-note">${esc(note)}</p></div>`).join('');
+    $('#exam-notes').innerHTML = EXAM_NOTES.map((n) => `<p>${n}</p>`).join('');
+    $('#cover-list').innerHTML = CATEGORIES.map((c) => {
+      const m = subjectMeta(c);
+      return `<li class="tone-${m.tone}"><span class="subject-icon">${icon(m.icon)}</span><span class="cover-name">${esc(c)}</span><span class="cover-count">${plural(COUNT_BY_CAT[c], 'question')} here</span></li>`;
+    }).join('');
+    $('#before-after').innerHTML = BEFORE_AFTER.map(([title, items]) =>
+      `<div class="card info-card"><h3>${esc(title)}</h3><ul class="plain-list">${items.map((i) => `<li>${i}</li>`).join('')}</ul></div>`).join('');
+    $('#official-links').innerHTML = `<ul class="plain-list link-list">${OFFICIAL_LINKS.map(([href, label]) =>
+      `<li><a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(label)}${icon('i-external', 'icon-sm')}<span class="sr-only"> (opens in a new tab)</span></a></li>`).join('')}</ul>
+      <p class="disclaimer">Rules and fees change. Check the FAA's own pages before you test or fly.</p>`;
   }
 
   function renderSubjectsPage() {

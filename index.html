@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="app-version" content="1.0" data-build="7">
+  <meta name="app-version" content="1.0" data-build="8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>[TEST] Preflight · Free FAA Part 107 drone test practice</title>
   <meta name="description" content="Free FAA Part 107 drone test practice: 250 questions across all seven subjects, each with a plain explanation and an FAA source. No sign-up.">
@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap"></noscript>
-  <link rel="stylesheet" href="assets/styles.css?v=1.0-7">
+  <link rel="stylesheet" href="assets/styles.css?v=1.0-8">
   <script>
     /* Before the page paints: apply the saved theme, and play the splash once per visit. */
     (function () {
@@ -146,6 +146,7 @@
         <a href="#/" data-nav="dashboard"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-dashboard"></use></svg><span>Dashboard</span></a>
         <a href="#/study" data-nav="study"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-cards"></use></svg><span>Study cards</span><span class="nav-badge" data-live-badge hidden></span></a>
         <a href="#/questions" data-nav="questions"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-list"></use></svg><span>All questions</span></a>
+        <a href="#/test" data-nav="test"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-clipboard"></use></svg><span>The test</span></a>
       </nav>
       <div class="side-foot">
         <div class="streak-card">
@@ -221,24 +222,54 @@
               <div class="section-head"><h2 id="history-title">Recent sessions</h2></div>
               <ol class="history-list card" id="dash-history-list"></ol>
             </section>
-            <section class="section info-grid" aria-label="About the test">
+          </div>
+        </section>
+
+        <!-- The test: how this site works, and what the FAA exam involves -->
+        <section id="view-test" class="view" aria-labelledby="test-title" hidden>
+          <div class="page">
+            <header class="page-head">
+              <div>
+                <p class="eyebrow">Guide</p>
+                <h1 id="test-title" tabindex="-1">The test</h1>
+                <p class="page-sub">How studying here works, and what to expect from the FAA's Part 107 knowledge test.</p>
+              </div>
+            </header>
+
+            <section class="section" aria-labelledby="how-title">
+              <div class="section-head"><h2 id="how-title">How this site works</h2></div>
               <div class="card info-card">
-                <h2>How it works</h2>
                 <ol class="steps">
-                  <li><b>Pick a set of study cards.</b> 10, 30, 60, or 100 questions, from every subject or just one.</li>
-                  <li><b>Answer and check.</b> Miss once and you get one more try. Miss twice and the answer appears with an explanation.</li>
+                  <li><b>Pick a set of study cards.</b> 10, 30, 60, or 100 questions, from every subject or just one. Cards from your last session are held back, so sets stay fresh.</li>
+                  <li><b>Answer and check.</b> Miss once and you get one more try. Miss twice and the answer appears with an explanation and the FAA source behind it.</li>
                   <li><b>Review your misses.</b> Anything you miss goes on your review list until you get it right on the first try.</li>
+                  <li><b>Run a full practice exam.</b> Exam simulation gives you 60 questions and a two-hour clock, scored against the same 70% the FAA uses.</li>
                 </ol>
               </div>
-              <div class="card info-card">
-                <h2>About the real test</h2>
-                <dl class="facts">
-                  <div><dt>Questions</dt><dd>60</dd></div>
-                  <div><dt>Time</dt><dd>2 hours</dd></div>
-                  <div><dt>To pass</dt><dd>70%</dd></div>
-                </dl>
-                <p>You take the FAA’s initial knowledge test in person at an approved testing center. Try <b>Exam simulation</b> under Study cards for a timed, full-length practice run.</p>
+            </section>
+
+            <section class="section" aria-labelledby="exam-title">
+              <div class="section-head"><h2 id="exam-title">The real exam</h2></div>
+              <dl class="facts facts-wide" id="exam-facts"></dl>
+              <div class="card info-card" id="exam-notes"></div>
+            </section>
+
+            <section class="section" aria-labelledby="cover-title">
+              <div class="section-head">
+                <h2 id="cover-title">What it covers</h2>
+                <a class="section-link" href="#/subjects">Your progress by subject<svg class="icon" aria-hidden="true" focusable="false"><use href="#i-arrow-right"></use></svg></a>
               </div>
+              <div class="card info-card"><ul class="cover-list" id="cover-list"></ul></div>
+            </section>
+
+            <section class="section" aria-labelledby="after-title">
+              <div class="section-head"><h2 id="after-title">Before and after</h2></div>
+              <div class="info-grid" id="before-after"></div>
+            </section>
+
+            <section class="section" aria-labelledby="links-title">
+              <div class="section-head"><h2 id="links-title">Official pages</h2></div>
+              <div class="card info-card" id="official-links"></div>
             </section>
           </div>
         </section>
@@ -336,6 +367,7 @@
       <a href="#/" data-nav="dashboard"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-dashboard"></use></svg><span>Dashboard</span></a>
       <a href="#/study" data-nav="study"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-cards"></use></svg><span>Study cards</span><span class="nav-dot" data-live-badge hidden></span></a>
       <a href="#/questions" data-nav="questions"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-list"></use></svg><span>All questions</span></a>
+      <a href="#/test" data-nav="test"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-clipboard"></use></svg><span>The test</span></a>
     </nav>
   </div>
 
@@ -484,9 +516,9 @@
   <div class="toast" id="toast" aria-hidden="true" hidden></div>
   <div class="sr-only" id="live" aria-live="polite" aria-atomic="true"></div>
 
-  <script src="assets/questions.js?v=1.0-7"></script>
-  <script src="assets/firebase-config.js?v=1.0-7"></script>
-  <script src="assets/app.js?v=1.0-7"></script>
-  <script type="module" src="assets/cloud.js?v=1.0-7"></script>
+  <script src="assets/questions.js?v=1.0-8"></script>
+  <script src="assets/firebase-config.js?v=1.0-8"></script>
+  <script src="assets/app.js?v=1.0-8"></script>
+  <script type="module" src="assets/cloud.js?v=1.0-8"></script>
 </body>
 </html>

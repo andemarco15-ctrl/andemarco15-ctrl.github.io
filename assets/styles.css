@@ -1201,3 +1201,29 @@ body[data-env="test"] .brand-name::after {
 }
 .acct-role { margin-top: 6px; }
 .chip-owner { background: var(--air-soft); color: var(--air); }
+
+/* ---------- The test (guide page) ---------- */
+.facts-wide { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 14px; }
+.facts-wide div { text-align: left; padding: 14px 16px; }
+.fact-note { font-size: 12.5px; color: var(--text-3); margin-top: 4px; line-height: 1.35; }
+@media (max-width: 719.98px) { .facts-wide { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.info-card > p + p { margin-top: 10px; }
+.cover-list { display: grid; gap: 10px; }
+.cover-list li { display: flex; align-items: center; gap: 12px; font-size: 15px; color: var(--text-2); }
+.cover-list .subject-icon { width: 34px; height: 34px; border-radius: 10px; }
+.cover-list .subject-icon .icon { width: 17px; height: 17px; }
+.cover-name { font-weight: 600; color: var(--ink); flex: 1; }
+.cover-count { font-size: 13.5px; color: var(--text-3); white-space: nowrap; }
+.plain-list { display: grid; gap: 9px; }
+.plain-list li { position: relative; padding-left: 18px; color: var(--text-2); font-size: 15px; line-height: 1.5; }
+.plain-list li::before { content: ""; position: absolute; left: 2px; top: .68em; width: 6px; height: 6px; border-radius: 50%; background: var(--line-strong); }
+.plain-list b { color: var(--ink); }
+.link-list li { padding-left: 0; }
+.link-list li::before { display: none; }
+.link-list a { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); font-weight: 600; font-size: 15px; text-decoration: none; }
+.link-list a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.link-list .icon { color: var(--text-3); }
+.info-card h3 { font-size: 16px; margin-bottom: 12px; }
+.info-card .disclaimer { margin-top: 14px; }
+.tabbar { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 400px) { .tabbar a { font-size: 11px; } .tabbar a .icon { width: 20px; height: 20px; } }
