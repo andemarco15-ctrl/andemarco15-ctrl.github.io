@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Part 107 Flight Deck · Free FAA drone test practice</title>
+  <meta name="description" content="Free FAA Part 107 drone test practice: 250 questions across all seven subjects, each with a plain explanation and an FAA source. No sign-up.">
+  <meta name="theme-color" content="#fbfaf8">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Part 107 Flight Deck">
+  <meta property="og:title" content="Part 107 Flight Deck · Free FAA drone test practice">
+  <meta property="og:description" content="250 practice questions for the FAA Part 107 drone pilot test, with explanations and FAA sources. Free, no sign-up.">
+  <meta name="twitter:card" content="summary">
+  <link rel="canonical" href="https://uaspart107.com/">
+  <meta property="og:url" content="https://uaspart107.com/">
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap"></noscript>
+  <link rel="stylesheet" href="assets/styles.css">
+  <script>
+    /* Before the page paints: apply the saved theme, and play the splash once per visit. */
+    (function () {
+      var root = document.documentElement;
+      try {
+        var saved = JSON.parse(localStorage.getItem('p107-flight-deck/v1') || '{}');
+        var theme = saved && saved.settings && saved.settings.theme;
+        if (theme === 'light' || theme === 'dark') root.setAttribute('data-theme', theme);
+      } catch (e) {}
+      var play = true;
+      try {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) play = false;
+        if (sessionStorage.getItem('p107-splash') === 'shown') play = false;
+        sessionStorage.setItem('p107-splash', 'shown');
+      } catch (e) {}
+      if (play) {
+        root.classList.add('splash-on');
+        setTimeout(function () { root.classList.remove('splash-on'); }, 6000);
+      }
+    })();
+  </script>
+</head>
+<body data-view="dashboard">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="logo" viewBox="0 0 32 32">
+        <rect width="32" height="32" rx="8" fill="#1b1e4b"/>
+        <g fill="none" stroke="#fbfaf8" stroke-width="2.3" stroke-linecap="round">
+          <path d="M10.6 10.6l10.8 10.8M21.4 10.6 10.6 21.4"/>
+          <circle cx="9.2" cy="9.2" r="3.6"/><circle cx="22.8" cy="9.2" r="3.6"/>
+          <circle cx="9.2" cy="22.8" r="3.6"/><circle cx="22.8" cy="22.8" r="3.6"/>
+        </g>
+        <rect x="12.7" y="12.7" width="6.6" height="6.6" rx="2" fill="#fbfaf8"/>
+      </symbol>
+    </defs>
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <symbol id="i-dashboard" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M7 16v-3M11 16V8M15 16v-5M19 16V5"/></symbol>
+      <symbol id="i-cards" viewBox="0 0 24 24"><rect x="3" y="7" width="14" height="14" rx="2.5"/><path d="M7 3.5h10.5A3.5 3.5 0 0 1 21 7v10.5"/><path d="m7.5 14 2 2 3.5-4"/></symbol>
+      <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="18" r="1" fill="currentColor"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+      <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m8.5 12.5 2.5 2.5 5-5.5"/></symbol>
+      <symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></symbol>
+      <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+      <symbol id="i-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+      <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></symbol>
+      <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.3-4.3"/></symbol>
+      <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 7v14M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0"/><circle cx="12" cy="12" r="3"/></symbol>
+      <symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></symbol>
+      <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+      <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11"/></symbol>
+      <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+      <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.4-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
+      <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></symbol>
+      <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+      <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+      <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M11.02 2.81a1 1 0 0 1 1.96 0l1.05 5.56a2 2 0 0 0 1.6 1.6l5.55 1.05a1 1 0 0 1 0 1.96l-5.56 1.05a2 2 0 0 0-1.6 1.6l-1.05 5.55a1 1 0 0 1-1.96 0l-1.05-5.56a2 2 0 0 0-1.6-1.6l-5.55-1.05a1 1 0 0 1 0-1.96l5.56-1.05a2 2 0 0 0 1.6-1.6z"/></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></symbol>
+      <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+      <symbol id="i-scale" viewBox="0 0 24 24"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1zM2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1zM7 21h10M12 3v18M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></symbol>
+      <symbol id="i-map" viewBox="0 0 24 24"><path d="M14.1 5.55a2 2 0 0 0 1.8 0l3.65-1.83A1 1 0 0 1 21 4.62v12.76a1 1 0 0 1-.55.9l-4.55 2.27a2 2 0 0 1-1.8 0l-4.2-2.1a2 2 0 0 0-1.8 0l-3.65 1.83A1 1 0 0 1 3 19.38V6.62a1 1 0 0 1 .55-.9L8.1 3.45a2 2 0 0 1 1.8 0zM15 5.76v15M9 3.24v15"/></symbol>
+      <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z"/></symbol>
+      <symbol id="i-radio" viewBox="0 0 24 24"><path d="M4.9 16.1C1 12.2 1 5.8 4.9 1.9M7.8 4.7a6.14 6.14 0 0 0-.8 7.5M16.2 4.8c2 2 2.26 5.11.8 7.47M19.1 1.9a9.96 9.96 0 0 1 0 14.1M9.5 18h5M8 22l4-11 4 11"/><circle cx="12" cy="9" r="2"/></symbol>
+      <symbol id="i-gauge" viewBox="0 0 24 24"><path d="m12 14 4-4M3.34 19a10 10 0 1 1 17.32 0"/></symbol>
+      <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5M9 18h6M10 22h4"/></symbol>
+      <symbol id="i-bell" viewBox="0 0 24 24"><path d="M10.27 21a2 2 0 0 0 3.46 0"/><path d="M3.26 15.33A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.67C19.41 13.96 18 12.5 18 8A6 6 0 0 0 6 8c0 4.5-1.41 5.96-2.74 7.33"/></symbol>
+      <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2"/><path d="M4.5 20.5c1.2-3.6 4.1-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></symbol>
+      <symbol id="i-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+      <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+      <symbol id="i-cloud-check" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z"/><path d="m9.5 13.5 2 2 3.5-4"/></symbol>
+      <symbol id="i-cloud-off" viewBox="0 0 24 24"><path d="m2 2 20 20M5.78 5.78A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.31-.2M21.53 16.5A4.5 4.5 0 0 0 17.5 10h-1.79A7 7 0 0 0 10.5 5.1"/></symbol>
+      <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+    </g>
+    <symbol id="i-google" viewBox="0 0 24 24"><path stroke="none" fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.46a5.52 5.52 0 0 1-2.4 3.62v3h3.88c2.27-2.09 3.58-5.17 3.58-8.81z"/><path stroke="none" fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.9l-3.88-3.01c-1.07.72-2.45 1.15-4.06 1.15-3.13 0-5.78-2.11-6.72-4.95H1.27v3.1A12 12 0 0 0 12 24z"/><path stroke="none" fill="#FBBC05" d="M5.28 14.29a7.2 7.2 0 0 1 0-4.58v-3.1H1.27a12 12 0 0 0 0 10.78l4.01-3.1z"/><path stroke="none" fill="#EA4335" d="M12 4.77c1.76 0 3.34.61 4.59 1.8l3.44-3.44A11.97 11.97 0 0 0 12 0 12 12 0 0 0 1.27 6.61l4.01 3.1C6.22 6.88 8.87 4.77 12 4.77z"/></symbol>
+  </svg>
+
+  <div class="splash" id="splash" aria-hidden="true">
+    <svg width="0" height="0" style="position:absolute" focusable="false">
+      <filter id="splash-goo" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="11" result="blur"/>
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9" result="goo"/>
+        <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+      </filter>
+    </svg>
+    <div class="splash-center">
+      <div class="splash-stage">
+        <span class="splash-ripple"></span>
+        <div class="splash-fluid">
+          <span class="drop drop-core"></span>
+          <span class="drop drop-a"></span>
+          <span class="drop drop-b"></span>
+          <span class="drop drop-c"></span>
+          <span class="drop drop-d"></span>
+          <span class="drop drop-e"></span>
+        </div>
+        <svg class="splash-mark" viewBox="0 0 32 32" focusable="false"><use href="#logo"></use></svg>
+      </div>
+      <p class="splash-name">Flight Deck</p>
+      <p class="splash-kicker">Part 107 prep</p>
+    </div>
+  </div>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="app">
+    <!-- Desktop sidebar -->
+    <aside class="sidebar">
+      <a class="brand" href="#/" aria-label="Part 107 Flight Deck, dashboard">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><use href="#logo"></use></svg>
+        <span class="brand-text" aria-hidden="true"><span class="brand-name">Flight Deck</span><span class="brand-kicker">Part 107 prep</span></span>
+      </a>
+      <nav class="side-nav" aria-label="Main">
+        <a href="#/" data-nav="dashboard"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-dashboard"></use></svg><span>Dashboard</span></a>
+        <a href="#/study" data-nav="study"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-cards"></use></svg><span>Study cards</span><span class="nav-badge" data-live-badge hidden></span></a>
+        <a href="#/questions" data-nav="questions"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-list"></use></svg><span>All questions</span></a>
+      </nav>
+      <div class="side-foot">
+        <div class="streak-card">
+          <span class="streak-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-flame"></use></svg></span>
+          <span><b data-streak>0</b> <span data-streak-label>day streak</span><small data-streak-hint>Answer a question to start</small></span>
+        </div>
+        <button type="button" class="side-link" data-action="settings" aria-haspopup="dialog"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-settings"></use></svg><span>Settings</span></button>
+      </div>
+    </aside>
+
+    <div class="main-col">
+      <!-- Top bar: brand on phones, tools in the top-right corner everywhere -->
+      <header class="topbar">
+        <a class="brand topbar-brand" href="#/" aria-label="Part 107 Flight Deck, dashboard">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><use href="#logo"></use></svg>
+          <span class="brand-name" aria-hidden="true">Flight Deck</span>
+        </a>
+        <div class="top-actions">
+          <button type="button" class="top-icon" data-action="search" aria-label="Search questions" aria-haspopup="dialog">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"></use></svg>
+          </button>
+          <button type="button" class="top-icon theme-toggle" data-action="toggle-theme" id="theme-toggle" aria-label="Switch to dark mode">
+            <svg class="icon icon-moon" aria-hidden="true" focusable="false"><use href="#i-moon"></use></svg>
+            <svg class="icon icon-sun" aria-hidden="true" focusable="false"><use href="#i-sun"></use></svg>
+          </button>
+          <div class="pop-wrap">
+            <button type="button" class="top-icon" data-action="notifications" id="bell-btn" aria-label="Notifications" aria-expanded="false" aria-controls="notif-panel">
+              <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-bell"></use></svg>
+              <span class="bell-dot" id="bell-dot" hidden></span>
+            </button>
+            <section class="pop-panel notif-panel" id="notif-panel" aria-labelledby="notif-title" hidden>
+              <div class="pop-head"><h2 id="notif-title">Notifications</h2></div>
+              <ul class="notif-list" id="notif-list"></ul>
+            </section>
+          </div>
+          <div class="pop-wrap">
+            <button type="button" class="account-btn" data-action="account" id="account-btn" aria-expanded="false" aria-controls="account-panel">
+              <span class="avatar" id="account-avatar" aria-hidden="true"><svg class="icon" focusable="false"><use href="#i-user"></use></svg></span>
+              <span class="account-name" id="account-name">Sign in</span>
+              <svg class="icon icon-sm account-chev" aria-hidden="true" focusable="false"><use href="#i-chevron-down"></use></svg>
+            </button>
+            <section class="pop-panel account-panel" id="account-panel" aria-label="Account" hidden></section>
+          </div>
+        </div>
+      </header>
+
+      <main id="main" tabindex="-1">
+        <noscript>
+          <div class="page"><p class="noscript">Part 107 Flight Deck needs JavaScript to run practice sessions. Please turn it on and reload the page.</p></div>
+        </noscript>
+
+        <!-- Dashboard -->
+        <section id="view-dashboard" class="view" aria-labelledby="dash-title" hidden>
+          <div class="page">
+            <header class="page-head">
+              <div>
+                <p class="eyebrow">FAA Part 107 · Remote Pilot knowledge test</p>
+                <h1 id="dash-title" tabindex="-1">Dashboard</h1>
+                <p class="page-sub">250 original practice questions across all seven test subjects, each with an explanation and the FAA source behind it.</p>
+              </div>
+            </header>
+            <div id="dash-hero"></div>
+            <div class="stat-grid" id="dash-stats"></div>
+            <div id="dash-review"></div>
+            <section class="section" aria-labelledby="subjects-title">
+              <div class="section-head">
+                <h2 id="subjects-title">Subjects</h2>
+                <p class="section-hint">Drill any subject with a quick 10-card set.</p>
+              </div>
+              <div class="subject-grid" id="dash-subjects"></div>
+            </section>
+            <section class="section" id="dash-history" aria-labelledby="history-title" hidden>
+              <div class="section-head"><h2 id="history-title">Recent sessions</h2></div>
+              <ol class="history-list card" id="dash-history-list"></ol>
+            </section>
+            <section class="section info-grid" aria-label="About the test">
+              <div class="card info-card">
+                <h2>How it works</h2>
+                <ol class="steps">
+                  <li><b>Pick a set of study cards.</b> 10, 30, 60, or 100 questions, from every subject or just one.</li>
+                  <li><b>Answer and check.</b> Miss once and you get one more try. Miss twice and the answer appears with an explanation.</li>
+                  <li><b>Review your misses.</b> Anything you miss goes on your review list until you get it right on the first try.</li>
+                </ol>
+              </div>
+              <div class="card info-card">
+                <h2>About the real test</h2>
+                <dl class="facts">
+                  <div><dt>Questions</dt><dd>60</dd></div>
+                  <div><dt>Time</dt><dd>2 hours</dd></div>
+                  <div><dt>To pass</dt><dd>70%</dd></div>
+                </dl>
+                <p>You take the FAA’s initial knowledge test in person at an approved testing center. Try <b>Exam simulation</b> under Study cards for a timed, full-length practice run.</p>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <!-- Study cards: builder, active session, or results -->
+        <section id="view-study" class="view" aria-labelledby="study-title" hidden></section>
+        <section id="view-session" class="view view-session" aria-labelledby="session-h" hidden></section>
+        <section id="view-results" class="view" aria-labelledby="results-title" hidden></section>
+
+        <!-- All questions -->
+        <section id="view-questions" class="view" aria-labelledby="questions-title" hidden>
+          <div class="page">
+            <header class="page-head">
+              <div>
+                <p class="eyebrow">Question library</p>
+                <h1 id="questions-title" tabindex="-1">All questions</h1>
+                <p class="page-sub">Search all 250 questions by keyword, rule number, or source. Open any question to see its answer and why.</p>
+              </div>
+            </header>
+            <div class="lib-tools card">
+              <label class="search">
+                <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"></use></svg>
+                <span class="sr-only">Search questions</span>
+                <input id="lib-q" type="search" placeholder="Try night, 107.51, METAR" autocomplete="off" spellcheck="false">
+                <kbd class="kbd hide-sm" aria-hidden="true">/</kbd>
+              </label>
+              <div class="lib-filters">
+                <label class="field"><span class="field-label">Subject</span><select id="lib-subject"></select></label>
+                <label class="field"><span class="field-label">Difficulty</span><select id="lib-diff"></select></label>
+                <label class="field"><span class="field-label">Your status</span><select id="lib-status"></select></label>
+                <label class="field"><span class="field-label">Source</span><select id="lib-source"></select></label>
+              </div>
+              <div class="lib-summary">
+                <p id="lib-count" role="status" aria-atomic="true"></p>
+                <button type="button" class="link-btn" data-action="lib-clear" id="lib-clear" hidden>Clear filters</button>
+              </div>
+            </div>
+            <div class="q-list" id="lib-list"></div>
+            <div class="lib-more">
+              <button type="button" class="btn btn-secondary" data-action="lib-more" id="lib-more" hidden>Show more</button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="page footer-inner">
+          <nav class="footer-links" aria-label="Official FAA resources">
+            <a href="https://www.faa.gov/uas/commercial_operators/become_a_drone_pilot" target="_blank" rel="noopener noreferrer">Become a drone pilot (FAA)<svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-external"></use></svg><span class="sr-only"> (opens in a new tab)</span></a>
+            <a href="https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107" target="_blank" rel="noopener noreferrer">14 CFR Part 107<svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-external"></use></svg><span class="sr-only"> (opens in a new tab)</span></a>
+            <a href="https://www.faa.gov/sites/faa.gov/files/training_testing/testing/acs/uas_acs.pdf" target="_blank" rel="noopener noreferrer">Test standards (ACS)<svg class="icon icon-sm" aria-hidden="true" focusable="false"><use href="#i-external"></use></svg><span class="sr-only"> (opens in a new tab)</span></a>
+          </nav>
+          <p class="disclaimer">Educational practice aid—not an FAA endorsement, actual FAA question bank, or substitute for current regulations, NOTAMs, authorizations, and operational judgment.</p>
+          <p class="footer-small">Part 107 Flight Deck · A BroGPT Study Systems project · <button type="button" class="link-btn footer-link-btn" data-action="privacy">Privacy</button></p>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Phone tab bar -->
+    <nav class="tabbar" aria-label="Main">
+      <a href="#/" data-nav="dashboard"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-dashboard"></use></svg><span>Dashboard</span></a>
+      <a href="#/study" data-nav="study"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-cards"></use></svg><span>Study cards</span><span class="nav-dot" data-live-badge hidden></span></a>
+      <a href="#/questions" data-nav="questions"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-list"></use></svg><span>All questions</span></a>
+    </nav>
+  </div>
+
+  <!-- Settings -->
+  <dialog id="dlg-settings" class="dialog" aria-labelledby="settings-title">
+    <div class="dialog-inner">
+      <div class="dialog-head">
+        <h2 id="settings-title">Settings</h2>
+        <button type="button" class="icon-btn" data-action="close-dialog" aria-label="Close settings"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-x"></use></svg></button>
+      </div>
+      <div class="dialog-body">
+        <fieldset class="setting">
+          <legend class="setting-title">Appearance</legend>
+          <div class="seg seg-3">
+            <label class="seg-btn"><input type="radio" name="theme" value="system"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-monitor"></use></svg><span>System</span></label>
+            <label class="seg-btn"><input type="radio" name="theme" value="light"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-sun"></use></svg><span>Light</span></label>
+            <label class="seg-btn"><input type="radio" name="theme" value="dark"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-moon"></use></svg><span>Dark</span></label>
+          </div>
+        </fieldset>
+        <div class="setting">
+          <h3 class="setting-title">Keyboard</h3>
+          <label class="check-row"><input type="checkbox" id="set-shortcuts"><span><b>Single-key shortcuts</b>A–D or 1–4 to choose, F to flag, / to search. Enter and the arrow keys always work.</span></label>
+        </div>
+        <div class="setting">
+          <h3 class="setting-title">Your progress</h3>
+          <p class="setting-text">Progress is saved in this browser only. Export a backup file to move it to another device or browser.</p>
+          <div class="setting-row">
+            <button type="button" class="btn btn-secondary btn-sm" data-action="export"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-download"></use></svg>Export</button>
+            <label class="btn btn-secondary btn-sm file-btn"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-upload"></use></svg>Import<input type="file" id="import-file" accept="application/json,.json"></label>
+          </div>
+          <p class="settings-msg" id="settings-msg" role="status" aria-live="polite"></p>
+        </div>
+        <div class="setting" id="settings-account" hidden>
+          <h3 class="setting-title">Account</h3>
+          <p class="setting-text" id="settings-account-text"></p>
+          <div class="setting-row">
+            <button type="button" class="btn btn-danger-soft btn-sm" data-action="delete-account"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-trash"></use></svg>Delete account</button>
+          </div>
+        </div>
+        <div class="setting">
+          <h3 class="setting-title">Start over</h3>
+          <p class="setting-text">Erase all progress, streaks, and sessions saved on this device.</p>
+          <div class="setting-row">
+            <button type="button" class="btn btn-danger-soft btn-sm" data-action="reset"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-trash"></use></svg>Reset progress</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Question map -->
+  <dialog id="dlg-map" class="dialog dialog-wide" aria-labelledby="map-title">
+    <div class="dialog-inner">
+      <div class="dialog-head">
+        <div>
+          <h2 id="map-title">Card map</h2>
+          <p class="dialog-sub" id="map-sub"></p>
+        </div>
+        <button type="button" class="icon-btn" data-action="close-dialog" aria-label="Close card map"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-x"></use></svg></button>
+      </div>
+      <div class="dialog-body">
+        <ul class="map-legend" id="map-legend"></ul>
+        <div class="map-grid" id="map-grid"></div>
+      </div>
+      <div class="dialog-foot">
+        <button type="button" class="btn btn-secondary" data-action="finish" id="map-finish">End session</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Quick search -->
+  <dialog id="dlg-search" class="dialog dialog-search" aria-labelledby="search-title">
+    <div class="dialog-inner">
+      <h2 id="search-title" class="sr-only">Search questions</h2>
+      <form class="search search-lg" id="quick-search-form" role="search">
+        <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"></use></svg>
+        <label class="sr-only" for="quick-q">Search questions</label>
+        <input id="quick-q" type="search" placeholder="Search questions, rules, sources" autocomplete="off" spellcheck="false">
+        <button type="button" class="kbd kbd-btn" data-action="close-dialog" aria-label="Close search">Esc</button>
+      </form>
+      <div class="quick-results" id="quick-results" aria-live="polite"></div>
+    </div>
+  </dialog>
+
+  <!-- Sign in / create account -->
+  <dialog id="dlg-auth" class="dialog" aria-labelledby="auth-title">
+    <div class="dialog-inner">
+      <div class="dialog-head">
+        <div>
+          <h2 id="auth-title">Sign in</h2>
+          <p class="dialog-sub" id="auth-sub">Save your progress and pick it up on any device.</p>
+        </div>
+        <button type="button" class="icon-btn" data-action="close-dialog" aria-label="Close"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-x"></use></svg></button>
+      </div>
+      <div class="dialog-body">
+        <div class="seg seg-2" role="group" aria-label="Choose">
+          <button type="button" class="seg-btn" data-action="auth-mode" data-mode="signin" aria-pressed="true">Sign in</button>
+          <button type="button" class="seg-btn" data-action="auth-mode" data-mode="signup" aria-pressed="false">Create account</button>
+        </div>
+        <button type="button" class="btn btn-secondary btn-lg btn-block google-btn" data-action="google-signin"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-google"></use></svg>Continue with Google</button>
+        <p class="or-line"><span>or use email</span></p>
+        <form id="auth-form" class="auth-form" novalidate>
+          <label class="field" id="auth-name-field" hidden><span class="field-label">Name</span><input class="input" id="auth-name" type="text" autocomplete="name" maxlength="60"></label>
+          <label class="field"><span class="field-label">Email</span><input class="input" id="auth-email" type="email" autocomplete="email" required></label>
+          <label class="field"><span class="field-label">Password</span><input class="input" id="auth-password" type="password" autocomplete="current-password" minlength="6" required></label>
+          <p class="auth-error" id="auth-error" role="alert"></p>
+          <button type="submit" class="btn btn-primary btn-lg btn-block" id="auth-submit">Sign in</button>
+          <button type="button" class="link-btn auth-forgot" data-action="forgot-password" id="auth-forgot">Forgot password?</button>
+        </form>
+        <p class="auth-note">By signing in, your email, name, and study progress are stored with Google Firebase so they sync across devices. <button type="button" class="link-btn" data-action="privacy">Privacy</button></p>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Privacy -->
+  <dialog id="dlg-privacy" class="dialog" aria-labelledby="privacy-title">
+    <div class="dialog-inner">
+      <div class="dialog-head">
+        <h2 id="privacy-title">Privacy</h2>
+        <button type="button" class="icon-btn" data-action="close-dialog" aria-label="Close"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-x"></use></svg></button>
+      </div>
+      <div class="dialog-body prose">
+        <p><b>Without an account</b>, everything stays in your browser. Nothing about your studying is sent anywhere.</p>
+        <p><b>With an account</b>, your name, email address, and study progress (answers, review list, streak, and settings) are stored in Google Firebase so you can sign in on another device and pick up where you left off.</p>
+        <p>Your data is only used to run this site. It isn't sold, shared, or used for ads, and there are no trackers.</p>
+        <p>You can delete your account and all of its saved data at any time in <b>Settings → Account</b>.</p>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" aria-hidden="true" hidden></div>
+  <div class="sr-only" id="live" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="assets/questions.js"></script>
+  <script src="assets/firebase-config.js"></script>
+  <script src="assets/app.js"></script>
+  <script type="module" src="assets/cloud.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    (function () {
+      // Path-style links (/study, /questions) go to the matching page of the app.
+      var parts = location.pathname.split('/').filter(Boolean);
+      var base = /\.github\.io$/.test(location.hostname) && parts.length ? '/' + parts.shift() + '/' : '/';
+      var routes = { 'study': '#/study', 'study/results': '#/study/results', 'questions': '#/questions', 'library': '#/questions', 'dashboard': '#/' };
+      var r = routes[parts.join('/').toLowerCase()];
+      if (r) location.replace(base + r);
+      window.__base = base;
+      try {
+        var saved = JSON.parse(localStorage.getItem('p107-flight-deck/v1') || '{}');
+        var theme = saved && saved.settings && saved.settings.theme;
+        if (theme === 'light' || theme === 'dark') document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
+  <title>Page not found · Part 107 Flight Deck</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231b1e4b'/%3E%3Cg fill='none' stroke='%23fbfaf8' stroke-width='2.3' stroke-linecap='round'%3E%3Cpath d='M10.6 10.6l10.8 10.8M21.4 10.6 10.6 21.4'/%3E%3Ccircle cx='9.2' cy='9.2' r='3.6'/%3E%3Ccircle cx='22.8' cy='9.2' r='3.6'/%3E%3Ccircle cx='9.2' cy='22.8' r='3.6'/%3E%3Ccircle cx='22.8' cy='22.8' r='3.6'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,600;9..40,700&display=swap" media="print" onload="this.media='all'">
+  <style>
+    :root { color-scheme: light; --bg: #f4f2ef; --card: #fff; --line: #e7e2dc; --ink: #14163a; --text: #5a4f49; --btn: #1b1e4b; --on: #fff; }
+    @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark; --bg: #141211; --card: #201d1b; --line: #342f2b; --ink: #f4f0ea; --text: #bfb5ac; --btn: #ebe8fb; --on: #14163a; } }
+    :root[data-theme="dark"] { color-scheme: dark; --bg: #141211; --card: #201d1b; --line: #342f2b; --ink: #f4f0ea; --text: #bfb5ac; --btn: #ebe8fb; --on: #14163a; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 16px; box-sizing: border-box; background: var(--bg); font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif; }
+    main { max-width: 420px; text-align: center; background: var(--card); border: 1px solid var(--line); padding: 36px 28px; border-radius: 20px; }
+    h1 { color: var(--ink); font-size: 26px; margin: 16px 0 8px; letter-spacing: -0.02em; }
+    p { color: var(--text); margin: 0 0 22px; line-height: 1.5; }
+    a { display: inline-block; background: var(--btn); color: var(--on); text-decoration: none; font-weight: 600; padding: 12px 20px; border-radius: 11px; }
+    a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+    svg { width: 48px; height: 48px; margin: 0 auto; display: block; }
+  </style>
+</head>
+<body>
+  <main>
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#1b1e4b"/><g fill="none" stroke="#fbfaf8" stroke-width="2.3" stroke-linecap="round"><path d="M10.6 10.6l10.8 10.8M21.4 10.6 10.6 21.4"/><circle cx="9.2" cy="9.2" r="3.6"/><circle cx="22.8" cy="9.2" r="3.6"/><circle cx="9.2" cy="22.8" r="3.6"/><circle cx="22.8" cy="22.8" r="3.6"/></g><rect x="12.7" y="12.7" width="6.6" height="6.6" rx="2" fill="#fbfaf8"/></svg>
+    <h1>That page flew off the chart</h1>
+    <p>The page you’re looking for doesn’t exist. Head back to your dashboard to keep studying.</p>
+    <a id="home" href="/">Back to Flight Deck</a>
+  </main>
+  <script>document.getElementById('home').href = window.__base || '/';</script>
+</body>
+</html>
