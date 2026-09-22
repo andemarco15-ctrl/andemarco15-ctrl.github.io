@@ -2185,7 +2185,7 @@
       const p = pct(last.correct, last.total);
       list.push({ key: `result:${last.n}`, icon: last.mode === 'exam' ? 'i-award' : 'i-check-circle', title: `Session #${last.n}: ${p}%`, body: `${last.correct} of ${last.total} correct${last.mode === 'exam' ? (p >= PASS ? ' · pass' : ' · below 70%') : ''}`, action: s && s.finishedAt && s.number === last.n ? 'view-results' : 'go-study' });
     }
-    if (update.latest && update.dismissed !== update.latest) list.unshift({ key: `update:${update.latest}`, icon: 'i-sparkles', title: `Update available: version ${update.latest}`, body: 'Reload to get the newest version.', action: 'apply-update' });
+    if (update.latest && update.dismissed !== update.latest) list.unshift({ key: `update:${update.latest}-${update.build}`, icon: 'i-sparkles', title: update.latest === APP_VERSION ? 'Update available' : `Update available: version ${update.latest}`, body: 'Reload to get the newest version.', action: 'apply-update' });
     if (!sync.user && sync.available && Object.keys(state.stats).length) list.push({ key: 'signin', icon: 'i-cloud-check', title: 'Save your progress', body: 'Sign in to keep it on every device.', action: 'open-auth' });
     if (!state.history.length && !(s && !s.finishedAt)) list.push({ key: 'welcome', icon: 'i-sparkles', title: 'Welcome to Flight Deck', body: 'Start your first set of study cards.', action: 'go-study' });
     return list;
@@ -2397,9 +2397,11 @@
   }
 
   // ---------- Version and updates ----------
-  const APP_VERSION = (document.querySelector('meta[name="app-version"]') || {}).content || '1.0';
+  const VERSION_META = document.querySelector('meta[name="app-version"]');
+  const APP_VERSION = (VERSION_META && VERSION_META.content) || '1.0';
+  const APP_BUILD = (VERSION_META && VERSION_META.dataset.build) || '0';
   const UPDATE_EVERY = 15 * 60 * 1000;
-  const update = { latest: null, lastCheck: 0, dismissed: null, timer: null };
+  const update = { latest: null, build: null, lastCheck: 0, dismissed: null, timer: null };
 
   async function checkForUpdate(opts) {
     const o = opts || {};
@@ -2410,14 +2412,17 @@
       if (!res.ok) return null;
       const data = await res.json();
       const latest = typeof data.version === 'string' ? data.version.slice(0, 20) : null;
-      update.latest = latest && latest !== APP_VERSION ? latest : null;
+      const latestBuild = data.build == null ? null : String(data.build).slice(0, 12);
+      const changed = !!latest && (latest !== APP_VERSION || (latestBuild !== null && latestBuild !== APP_BUILD));
+      update.latest = changed ? latest : null;
+      update.build = changed ? latestBuild : null;
     } catch (e) {
       /* offline or blocked: keep whatever we knew */
     }
     renderUpdate();
     renderBell();
     if (o.announce) {
-      toast(update.latest ? `Version ${update.latest} is available.` : `You’re on the latest version (${APP_VERSION}).`);
+      toast(update.latest ? 'An update is available. Reload to get it.' : `You’re on the latest version (${APP_VERSION}).`);
     }
     return update.latest;
   }
@@ -2427,7 +2432,7 @@
     if (!bar) return;
     const show = !!update.latest && update.dismissed !== update.latest;
     bar.hidden = !show;
-    if (show) $('#update-text').textContent = `Update available: version ${update.latest}`;
+    if (show) $('#update-text').textContent = update.latest === APP_VERSION ? 'Update available' : `Update available: version ${update.latest}`;
     const note = $('#settings-update-note');
     if (note) note.textContent = update.latest ? ` · version ${update.latest} is available` : ' · up to date';
     const ver = $('#settings-version');
@@ -2435,7 +2440,7 @@
   }
 
   function applyUpdate() {
-    const url = `${location.pathname}?v=${encodeURIComponent(update.latest || Date.now())}${location.hash}`;
+    const url = `${location.pathname}?v=${encodeURIComponent(`${update.latest || APP_VERSION}-${update.build || Date.now()}`)}${location.hash}`;
     location.replace(url);
   }
 
