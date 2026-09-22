@@ -1199,3 +1199,5 @@ body[data-env="test"] .brand-name::after {
   .user-role { grid-column: 1 / -1; }
   .user-role select { width: 100%; }
 }
+.acct-role { margin-top: 6px; }
+.chip-owner { background: var(--air-soft); color: var(--air); }

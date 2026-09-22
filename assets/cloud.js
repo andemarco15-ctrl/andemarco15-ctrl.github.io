@@ -4,6 +4,7 @@
  * it exposes window.FlightDeckCloud and fires a "fd-auth" event on sign-in/out.
  */
 const VERSION = '12.19.0';
+const OWNER_EMAILS = ['andemarco15@gmail.com', 'antonio@onthespotcorp.com'];
 const cfg = window.P107_FIREBASE;
 const cloud = { available: false, ready: false, user: null };
 window.FlightDeckCloud = cloud;
@@ -14,7 +15,14 @@ function emit(name, detail) {
 
 function toUser(u) {
   if (!u) return null;
-  return { uid: u.uid, name: u.displayName || '', email: u.email || '', photo: u.photoURL || '', provider: (u.providerData[0] && u.providerData[0].providerId) || 'password' };
+  return {
+    uid: u.uid,
+    name: u.displayName || '',
+    email: u.email || '',
+    photo: u.photoURL || '',
+    provider: (u.providerData[0] && u.providerData[0].providerId) || 'password',
+    owner: OWNER_EMAILS.includes((u.email || '').toLowerCase()),
+  };
 }
 
 async function start() {
@@ -34,7 +42,7 @@ async function start() {
   const db = F.getFirestore(app);
   const ref = () => F.doc(db, 'users', auth.currentUser.uid);
   const profileRef = (uid) => F.doc(db, 'profiles', uid || auth.currentUser.uid);
-  const OWNERS = ['andemarco15@gmail.com', 'antonio@onthespotcorp.com'];
+  const OWNERS = OWNER_EMAILS;
 
   cloud.available = true;
 

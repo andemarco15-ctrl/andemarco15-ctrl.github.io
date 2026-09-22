@@ -827,14 +827,15 @@
   // ---------- Routing ----------
   const HASH = { dashboard: '#/', subjects: '#/subjects', users: '#/users', study: '#/study', results: '#/study/results', questions: '#/questions' };
   const VIEW_IDS = { dashboard: 'view-dashboard', subjects: 'view-subjects', users: 'view-users', study: 'view-study', session: 'view-session', results: 'view-results', questions: 'view-questions' };
+  const SITE_NAME = 'Preflight';
   const TITLES = {
-    dashboard: 'Part 107 Flight Deck · Free FAA drone test practice',
-    subjects: 'Subjects · Part 107 Flight Deck',
-    users: 'Manage users · Part 107 Flight Deck',
-    study: 'Study cards · Part 107 Flight Deck',
-    session: 'Studying · Part 107 Flight Deck',
-    results: 'Session results · Part 107 Flight Deck',
-    questions: 'All questions · Part 107 Flight Deck',
+    dashboard: 'Dashboard',
+    subjects: 'Subjects',
+    users: 'Manage users',
+    study: 'Study cards',
+    session: 'Studying',
+    results: 'Session results',
+    questions: 'All questions',
   };
   const HEADINGS = { dashboard: '#dash-title', subjects: '#subjects-title', users: '#users-title', study: '#study-title', results: '#results-title', questions: '#questions-title' };
 
@@ -884,7 +885,7 @@
     for (const [key, id] of Object.entries(VIEW_IDS)) document.getElementById(id).hidden = key !== view;
     document.body.dataset.view = view;
     document.body.classList.toggle('in-session', view === 'session');
-    document.title = TITLES[view];
+    document.title = `${TITLES[view] || 'Dashboard'} | ${SITE_NAME}`;
     const navKey = view === 'dashboard' || view === 'subjects' ? 'dashboard' : view === 'questions' ? 'questions' : 'study';
     for (const a of $$('[data-nav]')) {
       if (a.dataset.nav === navKey) a.setAttribute('aria-current', 'page');
@@ -1616,7 +1617,7 @@
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `flight-deck-progress-${dayKey()}.json`;
+    link.download = `preflight-progress-${dayKey()}.json`;
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -1629,9 +1630,9 @@
     const reader = new FileReader();
     reader.onload = () => {
       let parsed;
-      try { parsed = JSON.parse(String(reader.result)); } catch (e) { toast('That file isn’t a Flight Deck backup.'); return; }
+      try { parsed = JSON.parse(String(reader.result)); } catch (e) { toast('That file isn’t a Preflight backup.'); return; }
       const data = parsed && parsed.app === 'part-107-flight-deck' ? parsed.data : parsed;
-      if (!data || typeof data !== 'object' || !('mastery' in data || 'stats' in data)) { toast('That file isn’t a Flight Deck backup.'); return; }
+      if (!data || typeof data !== 'object' || !('mastery' in data || 'stats' in data)) { toast('That file isn’t a Preflight backup.'); return; }
       if (!window.confirm('Replace the progress on this device with the imported file?')) return;
       state = sanitize(data);
       save();
@@ -1993,7 +1994,7 @@
   // ---------- Accounts and sync ----------
   const sync = { user: null, available: false, status: 'off', timer: null, lastPull: 0, firstEvent: true, intent: false, role: null };
   const ROLES = ['basic', 'cool', 'admin'];
-  const ROLE_LABEL = { basic: 'Basic', cool: 'Cool', admin: 'Admin' };
+  const ROLE_LABEL = { basic: 'Basic', cool: 'Cool', admin: 'Admin', owner: 'Owner' };
   const isStaff = () => sync.role === 'cool' || sync.role === 'admin';
   const isAdmin = () => sync.role === 'admin';
   const cloud = () => window.FlightDeckCloud || null;
@@ -2113,7 +2114,7 @@
   }
 
   function roleChip(role) {
-    const cls = role === 'admin' ? 'chip-ok' : role === 'cool' ? 'chip-warn' : 'chip-plain';
+    const cls = role === 'owner' ? 'chip-owner' : role === 'admin' ? 'chip-ok' : role === 'cool' ? 'chip-warn' : 'chip-plain';
     return `<span class="chip chip-sm ${cls}">${esc(ROLE_LABEL[role] || role)}</span>`;
   }
 
@@ -2156,7 +2157,7 @@
           ${admin && !p.owner
             ? `<span class="user-role"><label class="sr-only" for="role-${esc(p.uid)}">Role for ${esc(p.name || p.email)}</label>
                 <select id="role-${esc(p.uid)}" data-role-for="${esc(p.uid)}">${ROLES.map((r) => `<option value="${r}"${p.role === r ? ' selected' : ''}>${ROLE_LABEL[r]}</option>`).join('')}</select></span>`
-            : `<span class="user-role">${roleChip(p.role)}${p.owner ? '' : ''}</span>`}
+            : `<span class="user-role">${roleChip(p.owner ? 'owner' : p.role)}</span>`}
         </li>`;
       }).join('')}</ul>
       ${admin ? '' : '<p class="users-note">Only an admin can change roles.</p>'}`;
@@ -2202,7 +2203,11 @@
       const [ic, text] = SYNC_TEXT[sync.status] || SYNC_TEXT.off;
       panel.innerHTML = `<div class="acct-head">
           <span class="avatar avatar-lg is-user" aria-hidden="true">${avatarHtml(u, true)}</span>
-          <div class="acct-id"><p class="acct-name">${esc(u.name || shortName(u))}</p><p class="acct-sub">${esc(u.email)}</p></div>
+          <div class="acct-id">
+            <p class="acct-name">${esc(u.name || shortName(u))}</p>
+            <p class="acct-sub">${esc(u.email)}</p>
+            <p class="acct-role">${roleChip(u.owner ? 'owner' : sync.role || 'basic')}</p>
+          </div>
         </div>
         <p class="acct-sync acct-sync-${esc(sync.status)}">${icon(ic)}<span>${esc(text)}</span></p>
         <div class="pop-sep"></div>
@@ -2279,7 +2284,7 @@
     }
     if (update.latest && update.dismissed !== update.latest) list.unshift({ key: `update:${update.latest}-${update.build}`, icon: 'i-sparkles', title: update.latest === APP_VERSION ? 'Update available' : `Update available: version ${update.latest}`, body: 'Reload to get the newest version.', action: 'apply-update' });
     if (!sync.user && sync.available && Object.keys(state.stats).length) list.push({ key: 'signin', icon: 'i-cloud-check', title: 'Save your progress', body: 'Sign in to keep it on every device.', action: 'open-auth' });
-    if (!state.history.length && !(s && !s.finishedAt)) list.push({ key: 'welcome', icon: 'i-sparkles', title: 'Welcome to Flight Deck', body: 'Start your first set of study cards.', action: 'go-study' });
+    if (!state.history.length && !(s && !s.finishedAt)) list.push({ key: 'welcome', icon: 'i-sparkles', title: 'Welcome to Preflight', body: 'Start your first set of study cards.', action: 'go-study' });
     return list;
   }
 
