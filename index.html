@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="app-version" content="1.0" data-build="2">
+  <meta name="app-version" content="1.0" data-build="3">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>[TEST] Part 107 Flight Deck · Free FAA drone test practice</title>
   <meta name="description" content="Free FAA Part 107 drone test practice: 250 questions across all seven subjects, each with a plain explanation and an FAA source. No sign-up.">
@@ -20,7 +20,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap"></noscript>
-  <link rel="stylesheet" href="assets/styles.css?v=1.0-2">
+  <link rel="stylesheet" href="assets/styles.css?v=1.0-3">
   <script>
     /* Before the page paints: apply the saved theme, and play the splash once per visit. */
     (function () {
@@ -92,6 +92,8 @@
       <symbol id="i-radio" viewBox="0 0 24 24"><path d="M4.9 16.1C1 12.2 1 5.8 4.9 1.9M7.8 4.7a6.14 6.14 0 0 0-.8 7.5M16.2 4.8c2 2 2.26 5.11.8 7.47M19.1 1.9a9.96 9.96 0 0 1 0 14.1M9.5 18h5M8 22l4-11 4 11"/><circle cx="12" cy="9" r="2"/></symbol>
       <symbol id="i-gauge" viewBox="0 0 24 24"><path d="m12 14 4-4M3.34 19a10 10 0 1 1 17.32 0"/></symbol>
       <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5M9 18h6M10 22h4"/></symbol>
+      <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+      <symbol id="i-shield-star" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m12 8 1.2 2.5 2.8.4-2 2 .5 2.8-2.5-1.3-2.5 1.3.5-2.8-2-2 2.8-.4z"/></symbol>
       <symbol id="i-bell" viewBox="0 0 24 24"><path d="M10.27 21a2 2 0 0 0 3.46 0"/><path d="M3.26 15.33A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.67C19.41 13.96 18 12.5 18 8A6 6 0 0 0 6 8c0 4.5-1.41 5.96-2.74 7.33"/></symbol>
       <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2"/><path d="M4.5 20.5c1.2-3.6 4.1-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></symbol>
       <symbol id="i-log-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
@@ -150,6 +152,7 @@
           <span class="streak-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-flame"></use></svg></span>
           <span><b data-streak>0</b> <span data-streak-label>day streak</span><small data-streak-hint>Answer a question to start</small></span>
         </div>
+        <a class="side-link staff-link" href="#/users" id="users-link" hidden><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-users"></use></svg><span>Manage users</span></a>
         <div id="tools-slot-side"></div>
         <button type="button" class="side-link" data-action="settings" aria-haspopup="dialog"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-settings"></use></svg><span>Settings</span></button>
       </div>
@@ -237,6 +240,26 @@
                 <p>You take the FAA’s initial knowledge test in person at an approved testing center. Try <b>Exam simulation</b> under Study cards for a timed, full-length practice run.</p>
               </div>
             </section>
+          </div>
+        </section>
+
+        <!-- Manage users (staff only) -->
+        <section id="view-users" class="view" aria-labelledby="users-title" hidden>
+          <div class="page">
+            <header class="page-head">
+              <div>
+                <p class="eyebrow">Admin</p>
+                <h1 id="users-title" tabindex="-1">Manage users</h1>
+                <p class="page-sub">Everyone who has signed in. Roles decide what each person can do.</p>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" data-action="refresh-users"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-rotate"></use></svg>Refresh</button>
+            </header>
+            <ul class="role-key">
+              <li><span class="chip chip-plain">Basic</span>Can use the website</li>
+              <li><span class="chip chip-warn">Cool</span>Can also see this page</li>
+              <li><span class="chip chip-ok">Admin</span>Can do everything, including changing roles</li>
+            </ul>
+            <div id="users-list"></div>
           </div>
         </section>
 
@@ -445,6 +468,7 @@
         <p><b>Without an account</b>, everything stays in your browser. Nothing about your studying is sent anywhere.</p>
         <p><b>With an account</b>, your name, email address, and study progress (answers, review list, streak, and settings) are stored in Google Firebase so you can sign in on another device and pick up where you left off.</p>
         <p>Your data is only used to run this site. It isn't sold, shared, or used for ads, and there are no trackers.</p>
+        <p>The site's <b>admins</b> can see the list of accounts: name, email address, and when each person last used the site. They cannot see your answers or progress.</p>
         <p>You can delete your account and all of its saved data at any time in <b>Settings → Account</b>.</p>
       </div>
     </div>
@@ -460,9 +484,9 @@
   <div class="toast" id="toast" aria-hidden="true" hidden></div>
   <div class="sr-only" id="live" aria-live="polite" aria-atomic="true"></div>
 
-  <script src="assets/questions.js?v=1.0-2"></script>
-  <script src="assets/firebase-config.js?v=1.0-2"></script>
-  <script src="assets/app.js?v=1.0-2"></script>
-  <script type="module" src="assets/cloud.js?v=1.0-2"></script>
+  <script src="assets/questions.js?v=1.0-3"></script>
+  <script src="assets/firebase-config.js?v=1.0-3"></script>
+  <script src="assets/app.js?v=1.0-3"></script>
+  <script type="module" src="assets/cloud.js?v=1.0-3"></script>
 </body>
 </html>

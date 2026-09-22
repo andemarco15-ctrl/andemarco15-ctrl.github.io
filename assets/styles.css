@@ -1169,3 +1169,33 @@ body[data-env="test"] .brand-name::after {
 .subject-figures dt { font-size: 12px; color: var(--text-3); font-weight: 600; }
 .subject-figures dd { font-size: 19px; font-weight: 700; color: var(--ink); line-height: 1.2; font-variant-numeric: tabular-nums; }
 .subject-foot .btn { flex: 1; }
+
+/* ---------- Manage users (staff only) ---------- */
+.staff-link { color: var(--text); }
+.role-key { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 16px; font-size: 14px; color: var(--text-2); }
+.role-key li { display: inline-flex; align-items: center; gap: 8px; }
+.users-count { font-size: 14.5px; color: var(--text-2); margin-bottom: 10px; }
+.users-loading { padding: 24px; color: var(--text-3); }
+.users-note { margin-top: 12px; font-size: 13.5px; color: var(--text-3); }
+.user-list { padding: 4px 0; }
+.user-row {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 14px;
+  padding: 12px 18px;
+}
+.user-row + .user-row { border-top: 1px solid var(--line); }
+.user-id { display: grid; gap: 2px; min-width: 0; }
+.user-name { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--ink); font-size: 15px; }
+.user-email { font-size: 13px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; }
+.user-you, .user-owner {
+  font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  padding: 1px 7px; border-radius: 999px; background: var(--surface-3); color: var(--text-2);
+}
+.user-owner { background: var(--reg-soft); color: var(--reg); }
+.user-seen { font-size: 13px; color: var(--text-3); white-space: nowrap; }
+.user-role select { height: 38px; min-width: 116px; }
+@media (max-width: 719.98px) {
+  .user-row { grid-template-columns: auto minmax(0, 1fr); gap: 10px 12px; }
+  .user-seen { grid-column: 2; font-size: 12.5px; }
+  .user-role { grid-column: 1 / -1; }
+  .user-role select { width: 100%; }
+}

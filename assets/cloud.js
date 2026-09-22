@@ -33,6 +33,8 @@ async function start() {
   const auth = A.getAuth(app);
   const db = F.getFirestore(app);
   const ref = () => F.doc(db, 'users', auth.currentUser.uid);
+  const profileRef = (uid) => F.doc(db, 'profiles', uid || auth.currentUser.uid);
+  const OWNERS = ['andemarco15@gmail.com', 'antonio@onthespotcorp.com'];
 
   cloud.available = true;
 
@@ -76,9 +78,57 @@ async function start() {
     if (!auth.currentUser) return;
     await F.setDoc(ref(), { progress: JSON.stringify(state), updatedAt: F.serverTimestamp(), v: 1 });
   };
+  // Each signed-in person keeps their own profile row up to date. Roles are set
+  // by an admin; the two owner emails are always admin.
+  cloud.syncProfile = async () => {
+    const u = auth.currentUser;
+    if (!u) return null;
+    const owner = OWNERS.includes((u.email || '').toLowerCase());
+    const snap = await F.getDoc(profileRef());
+    const fields = {
+      name: u.displayName || '',
+      email: u.email || '',
+      photo: u.photoURL || '',
+      provider: (u.providerData[0] && u.providerData[0].providerId) || 'password',
+      lastSeen: F.serverTimestamp(),
+    };
+    if (!snap.exists()) {
+      await F.setDoc(profileRef(), Object.assign({ role: owner ? 'admin' : 'basic', createdAt: F.serverTimestamp() }, fields));
+      return owner ? 'admin' : 'basic';
+    }
+    const role = snap.data().role || 'basic';
+    if (owner && role !== 'admin') {
+      await F.setDoc(profileRef(), Object.assign({ role: 'admin' }, fields), { merge: true });
+      return 'admin';
+    }
+    await F.setDoc(profileRef(), fields, { merge: true });
+    return role;
+  };
+
+  cloud.listProfiles = async () => {
+    const snap = await F.getDocs(F.collection(db, 'profiles'));
+    return snap.docs.map((d) => {
+      const v = d.data();
+      return {
+        uid: d.id,
+        name: v.name || '',
+        email: v.email || '',
+        photo: v.photo || '',
+        provider: v.provider || '',
+        role: v.role || 'basic',
+        createdAt: v.createdAt && v.createdAt.toMillis ? v.createdAt.toMillis() : null,
+        lastSeen: v.lastSeen && v.lastSeen.toMillis ? v.lastSeen.toMillis() : null,
+        owner: OWNERS.includes((v.email || '').toLowerCase()),
+      };
+    });
+  };
+
+  cloud.setRole = (uid, role) => F.updateDoc(profileRef(uid), { role });
+
   cloud.deleteAccount = async () => {
     if (!auth.currentUser) return;
     await F.deleteDoc(ref());
+    try { await F.deleteDoc(profileRef()); } catch (e) { /* profile may already be gone */ }
     await A.deleteUser(auth.currentUser);
   };
   cloud.reauthenticate = async (password) => {

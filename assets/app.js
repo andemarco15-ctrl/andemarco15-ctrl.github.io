@@ -825,23 +825,25 @@
   }
 
   // ---------- Routing ----------
-  const HASH = { dashboard: '#/', subjects: '#/subjects', study: '#/study', results: '#/study/results', questions: '#/questions' };
-  const VIEW_IDS = { dashboard: 'view-dashboard', subjects: 'view-subjects', study: 'view-study', session: 'view-session', results: 'view-results', questions: 'view-questions' };
+  const HASH = { dashboard: '#/', subjects: '#/subjects', users: '#/users', study: '#/study', results: '#/study/results', questions: '#/questions' };
+  const VIEW_IDS = { dashboard: 'view-dashboard', subjects: 'view-subjects', users: 'view-users', study: 'view-study', session: 'view-session', results: 'view-results', questions: 'view-questions' };
   const TITLES = {
     dashboard: 'Part 107 Flight Deck · Free FAA drone test practice',
     subjects: 'Subjects · Part 107 Flight Deck',
+    users: 'Manage users · Part 107 Flight Deck',
     study: 'Study cards · Part 107 Flight Deck',
     session: 'Studying · Part 107 Flight Deck',
     results: 'Session results · Part 107 Flight Deck',
     questions: 'All questions · Part 107 Flight Deck',
   };
-  const HEADINGS = { dashboard: '#dash-title', subjects: '#subjects-title', study: '#study-title', results: '#results-title', questions: '#questions-title' };
+  const HEADINGS = { dashboard: '#dash-title', subjects: '#subjects-title', users: '#users-title', study: '#study-title', results: '#results-title', questions: '#questions-title' };
 
   function parseHash() {
     let h = location.hash || '';
     try { h = decodeURIComponent(h); } catch (e) { /* malformed escape: use the raw hash */ }
     const raw = h.replace(/^#\/?/, '').replace(/\/+$/, '').toLowerCase();
     if (raw === 'subjects') return 'subjects';
+    if (raw === 'users') return 'users';
     if (raw === 'study') return 'study';
     if (raw === 'study/results') return 'results';
     if (raw === 'questions' || raw === 'library') return 'questions';
@@ -871,6 +873,7 @@
     if (expired && name === 'study') name = 'results';
     if (expired) toast('Your exam simulation ran out of time, so it was scored.');
     if (name === 'results' && !(s && s.finishedAt)) name = 'study';
+    if (name === 'users' && !isStaff()) name = 'dashboard';
     const view = name === 'study' && s && !s.finishedAt ? 'session' : name;
     if (location.hash !== HASH[name]) history.replaceState(null, '', HASH[name]);
 
@@ -892,6 +895,7 @@
     const moveFocus = !ui.firstRoute && !same;
     if (view === 'dashboard') renderDashboard();
     else if (view === 'subjects') renderSubjectsPage();
+    else if (view === 'users') renderUsersPage();
     else if (view === 'study') renderStudy();
     else if (view === 'session') renderSession({ focus: moveFocus ? 'question' : 'none' });
     else if (view === 'results') {
@@ -1820,6 +1824,9 @@
       case 'check-update':
         checkForUpdate({ force: true, announce: true });
         break;
+      case 'refresh-users':
+        renderUsersPage();
+        break;
       case 'privacy':
         closePanels(false);
         $('#dlg-privacy').showModal();
@@ -1868,6 +1875,8 @@
         save();
         renderStudy();
         $('#builder-subject').focus();
+      } else if (t.dataset.roleFor) {
+        changeRole(t.dataset.roleFor, t.value);
       } else if (t.id === 'set-shortcuts') {
         state.settings.shortcuts = t.checked;
         save();
@@ -1982,7 +1991,11 @@
   }
 
   // ---------- Accounts and sync ----------
-  const sync = { user: null, available: false, status: 'off', timer: null, lastPull: 0, firstEvent: true, intent: false };
+  const sync = { user: null, available: false, status: 'off', timer: null, lastPull: 0, firstEvent: true, intent: false, role: null };
+  const ROLES = ['basic', 'cool', 'admin'];
+  const ROLE_LABEL = { basic: 'Basic', cool: 'Cool', admin: 'Admin' };
+  const isStaff = () => sync.role === 'cool' || sync.role === 'admin';
+  const isAdmin = () => sync.role === 'admin';
   const cloud = () => window.FlightDeckCloud || null;
 
   function schedulePush() {
@@ -2013,6 +2026,12 @@
     sync.lastPull = Date.now();
     renderAccount();
     try {
+      try {
+        sync.role = await c.syncProfile();
+      } catch (e) {
+        sync.role = sync.role || 'basic';
+      }
+      renderStaffNav();
       const raw = await c.load();
       if (raw) {
         state = mergeStates(state, sanitize(raw));
@@ -2044,6 +2063,8 @@
       }
     } else if (!sync.user) {
       window.clearTimeout(sync.timer);
+      sync.role = null;
+      renderStaffNav();
       sync.status = 'off';
       if (before && !first) toast('Signed out. Progress on this device is kept.');
     }
@@ -2085,6 +2106,76 @@
     error: ['i-cloud-off', 'Couldn’t sync. We’ll try again.'],
   };
 
+  function renderStaffNav() {
+    const link = $('#users-link');
+    if (link) link.hidden = !isStaff();
+    if (!isStaff() && ui.view === 'users') navigate('dashboard');
+  }
+
+  function roleChip(role) {
+    const cls = role === 'admin' ? 'chip-ok' : role === 'cool' ? 'chip-warn' : 'chip-plain';
+    return `<span class="chip chip-sm ${cls}">${esc(ROLE_LABEL[role] || role)}</span>`;
+  }
+
+  function whenSeen(ms) {
+    if (!ms) return 'never';
+    const mins = Math.round((Date.now() - ms) / 60000);
+    if (mins < 2) return 'just now';
+    if (mins < 60) return `${mins} min ago`;
+    const hours = Math.round(mins / 60);
+    if (hours < 24) return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+    const days = Math.round(hours / 24);
+    return days < 30 ? `${days} ${days === 1 ? 'day' : 'days'} ago` : formatDate(ms);
+  }
+
+  async function renderUsersPage(opts) {
+    const box = $('#users-list');
+    const c = cloud();
+    if (!c || !c.listProfiles) { box.innerHTML = '<p class="lib-empty">Accounts aren’t available right now.</p>'; return; }
+    if (!(opts && opts.keep)) box.innerHTML = '<p class="users-loading">Loading accounts…</p>';
+    let people;
+    try {
+      people = await c.listProfiles();
+    } catch (e) {
+      box.innerHTML = `<div class="card lib-empty"><h2>Couldn’t load accounts</h2><p>${esc(e && e.code === 'permission-denied' ? 'Your account doesn’t have access to this page.' : 'Check your connection and try again.')}</p></div>`;
+      return;
+    }
+    people.sort((a, b) => (b.lastSeen || 0) - (a.lastSeen || 0));
+    const admin = isAdmin();
+    const counts = ROLES.map((r) => `${people.filter((p) => p.role === r).length} ${ROLE_LABEL[r].toLowerCase()}`).join(' · ');
+    box.innerHTML = `<p class="users-count">${plural(people.length, 'account')} · ${esc(counts)}</p>
+      <ul class="user-list card">${people.map((p) => {
+        const me = sync.user && sync.user.uid === p.uid;
+        return `<li class="user-row">
+          <span class="avatar is-user" aria-hidden="true">${p.photo ? `<img src="${esc(p.photo)}" alt="" referrerpolicy="no-referrer" width="34" height="34">` : `<span class="avatar-initials">${esc(((p.name || p.email || '?').trim()[0] || '?').toUpperCase())}</span>`}</span>
+          <span class="user-id">
+            <span class="user-name">${esc(p.name || '(no name)')}${me ? '<span class="user-you">you</span>' : ''}${p.owner ? '<span class="user-owner">owner</span>' : ''}</span>
+            <span class="user-email">${esc(p.email || p.uid)}</span>
+          </span>
+          <span class="user-seen">${esc(whenSeen(p.lastSeen))}</span>
+          ${admin && !p.owner
+            ? `<span class="user-role"><label class="sr-only" for="role-${esc(p.uid)}">Role for ${esc(p.name || p.email)}</label>
+                <select id="role-${esc(p.uid)}" data-role-for="${esc(p.uid)}">${ROLES.map((r) => `<option value="${r}"${p.role === r ? ' selected' : ''}>${ROLE_LABEL[r]}</option>`).join('')}</select></span>`
+            : `<span class="user-role">${roleChip(p.role)}${p.owner ? '' : ''}</span>`}
+        </li>`;
+      }).join('')}</ul>
+      ${admin ? '' : '<p class="users-note">Only an admin can change roles.</p>'}`;
+  }
+
+  async function changeRole(uid, role) {
+    const c = cloud();
+    if (!c || !c.setRole || !ROLES.includes(role)) return;
+    try {
+      await c.setRole(uid, role);
+      toast(`Role set to ${ROLE_LABEL[role]}.`);
+      if (sync.user && sync.user.uid === uid) { sync.role = role; renderStaffNav(); }
+      renderUsersPage({ keep: true });
+    } catch (e) {
+      toast(e && e.code === 'permission-denied' ? 'Only an admin can change roles.' : 'Couldn’t change that role.');
+      renderUsersPage({ keep: true });
+    }
+  }
+
   function renderAccount() {
     const u = sync.user;
     const btn = $('#account-btn');
@@ -2115,6 +2206,7 @@
         </div>
         <p class="acct-sync acct-sync-${esc(sync.status)}">${icon(ic)}<span>${esc(text)}</span></p>
         <div class="pop-sep"></div>
+        ${isStaff() ? `<a class="pop-item" href="#/users">${icon('i-users')}Manage users</a>` : ''}
         <button type="button" class="pop-item" data-action="settings">${icon('i-settings')}Settings</button>
         <button type="button" class="pop-item" data-action="sign-out">${icon('i-log-out')}Sign out</button>`;
     } else if (sync.available) {
