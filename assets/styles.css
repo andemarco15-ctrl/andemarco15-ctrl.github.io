@@ -1107,3 +1107,11 @@ html.splash-on .splash {
   .breakdown-name span:last-child { white-space: normal; overflow: visible; }
 }
 .map-legend i.st-retry { border-color: var(--danger); border-style: dashed; background: var(--surface); }
+
+/* ---------- Test-site badge (only on the github.io test copy) ---------- */
+body[data-env="test"] .brand-name::after {
+  content: "TEST";
+  margin-left: 8px; padding: 2px 7px; border-radius: 6px; vertical-align: 2px;
+  background: var(--warn-soft); color: var(--warn-text);
+  font-size: 11px; font-weight: 700; letter-spacing: .08em;
+}
