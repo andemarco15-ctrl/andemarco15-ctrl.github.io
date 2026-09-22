@@ -33,8 +33,6 @@
       var play = true;
       try {
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) play = false;
-        if (sessionStorage.getItem('p107-splash') === 'shown') play = false;
-        sessionStorage.setItem('p107-splash', 'shown');
       } catch (e) {}
       if (play) {
         root.classList.add('splash-on');
@@ -215,13 +213,7 @@
             <div id="dash-hero"></div>
             <div class="stat-grid" id="dash-stats"></div>
             <div id="dash-review"></div>
-            <section class="section" aria-labelledby="subjects-title">
-              <div class="section-head">
-                <h2 id="subjects-title">Subjects</h2>
-                <p class="section-hint">Drill any subject with a quick 10-card set.</p>
-              </div>
-              <div class="subject-grid" id="dash-subjects"></div>
-            </section>
+            <div id="dash-subjects-strip"></div>
             <section class="section" id="dash-history" aria-labelledby="history-title" hidden>
               <div class="section-head"><h2 id="history-title">Recent sessions</h2></div>
               <ol class="history-list card" id="dash-history-list"></ol>
@@ -245,6 +237,20 @@
                 <p>You take the FAA’s initial knowledge test in person at an approved testing center. Try <b>Exam simulation</b> under Study cards for a timed, full-length practice run.</p>
               </div>
             </section>
+          </div>
+        </section>
+
+        <!-- Subjects (a page of its own, reached from the dashboard) -->
+        <section id="view-subjects" class="view" aria-labelledby="subjects-title" hidden>
+          <div class="page">
+            <header class="page-head">
+              <div>
+                <a class="back-link" href="#/"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-arrow-left"></use></svg>Dashboard</a>
+                <h1 id="subjects-title" tabindex="-1">Subjects</h1>
+                <p class="page-sub">How you're doing in each of the seven test subjects. Drill any one of them, or set up a mixed session under Study cards.</p>
+              </div>
+            </header>
+            <div class="subject-grid" id="subjects-grid"></div>
           </div>
         </section>
 

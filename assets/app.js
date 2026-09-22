@@ -825,21 +825,23 @@
   }
 
   // ---------- Routing ----------
-  const HASH = { dashboard: '#/', study: '#/study', results: '#/study/results', questions: '#/questions' };
-  const VIEW_IDS = { dashboard: 'view-dashboard', study: 'view-study', session: 'view-session', results: 'view-results', questions: 'view-questions' };
+  const HASH = { dashboard: '#/', subjects: '#/subjects', study: '#/study', results: '#/study/results', questions: '#/questions' };
+  const VIEW_IDS = { dashboard: 'view-dashboard', subjects: 'view-subjects', study: 'view-study', session: 'view-session', results: 'view-results', questions: 'view-questions' };
   const TITLES = {
     dashboard: 'Part 107 Flight Deck · Free FAA drone test practice',
+    subjects: 'Subjects · Part 107 Flight Deck',
     study: 'Study cards · Part 107 Flight Deck',
     session: 'Studying · Part 107 Flight Deck',
     results: 'Session results · Part 107 Flight Deck',
     questions: 'All questions · Part 107 Flight Deck',
   };
-  const HEADINGS = { dashboard: '#dash-title', study: '#study-title', results: '#results-title', questions: '#questions-title' };
+  const HEADINGS = { dashboard: '#dash-title', subjects: '#subjects-title', study: '#study-title', results: '#results-title', questions: '#questions-title' };
 
   function parseHash() {
     let h = location.hash || '';
     try { h = decodeURIComponent(h); } catch (e) { /* malformed escape: use the raw hash */ }
     const raw = h.replace(/^#\/?/, '').replace(/\/+$/, '').toLowerCase();
+    if (raw === 'subjects') return 'subjects';
     if (raw === 'study') return 'study';
     if (raw === 'study/results') return 'results';
     if (raw === 'questions' || raw === 'library') return 'questions';
@@ -880,7 +882,7 @@
     document.body.dataset.view = view;
     document.body.classList.toggle('in-session', view === 'session');
     document.title = TITLES[view];
-    const navKey = view === 'dashboard' || view === 'questions' ? view : 'study';
+    const navKey = view === 'dashboard' || view === 'subjects' ? 'dashboard' : view === 'questions' ? 'questions' : 'study';
     for (const a of $$('[data-nav]')) {
       if (a.dataset.nav === navKey) a.setAttribute('aria-current', 'page');
       else a.removeAttribute('aria-current');
@@ -889,6 +891,7 @@
     renderChrome();
     const moveFocus = !ui.firstRoute && !same;
     if (view === 'dashboard') renderDashboard();
+    else if (view === 'subjects') renderSubjectsPage();
     else if (view === 'study') renderStudy();
     else if (view === 'session') renderSession({ focus: moveFocus ? 'question' : 'none' });
     else if (view === 'results') {
@@ -1010,28 +1013,50 @@
     const queue = reviewQueue();
     $('#dash-review').innerHTML = queue.length ? reviewCallout(queue.length) : '';
 
-    $('#dash-subjects').innerHTML = CATEGORIES.map((c) => {
-      const m = subjectMeta(c);
-      const t = tally(idsIn(c));
-      const exploredOnly = Math.max(0, t.explored - t.mastered);
-      return `<article class="subject-card tone-${m.tone}">
-        <div class="subject-top">
-          <span class="subject-icon">${icon(m.icon)}</span>
-          <div><h3 class="subject-name">${esc(c)}</h3><p class="subject-count">${plural(t.total, 'question')}</p></div>
-        </div>
-        <div class="meter" role="img" aria-label="${t.mastered} of ${t.total} mastered, ${t.explored} explored">
-          <span class="m-mastered" style="width:${pct(t.mastered, t.total)}%"></span><span class="m-explored" style="width:${pct(exploredOnly, t.total)}%"></span>
-        </div>
-        <div class="subject-foot">
-          <p class="subject-stats"><b>${t.mastered}</b> mastered · ${t.accuracy == null ? 'not started' : `<b>${t.accuracy}%</b> first try`}</p>
-          <button type="button" class="btn btn-secondary btn-sm" data-action="drill" data-subject="${esc(c)}" aria-label="Practice 10 ${esc(c)} cards">Practice 10</button>
-        </div>
-      </article>`;
-    }).join('');
+    const weakest = CATEGORIES.map((c) => ({ c, t: tally(idsIn(c)) })).filter((x) => x.t.answered).sort((a, b) => a.t.accuracy - b.t.accuracy)[0];
+    $('#dash-subjects-strip').innerHTML = `<a class="subjects-strip" href="#/subjects">
+        <span class="strip-icons" aria-hidden="true">${CATEGORIES.map((c) => {
+          const m = subjectMeta(c);
+          const t = tally(idsIn(c));
+          return `<span class="strip-icon tone-${m.tone}" style="--fill:${pct(t.mastered, t.total)}%">${icon(m.icon)}</span>`;
+        }).join('')}</span>
+        <span class="strip-copy">
+          <span class="strip-title">Progress by subject</span>
+          <span class="strip-sub">${weakest ? `${esc(weakest.c)} is your weakest at ${weakest.t.accuracy}% first try` : 'All seven test subjects, and a quick drill for each'}</span>
+        </span>
+        ${icon('i-chevron-right', 'strip-chev')}
+      </a>`;
 
     const hist = state.history.slice(0, 5);
     $('#dash-history').hidden = hist.length === 0;
     $('#dash-history-list').innerHTML = hist.map(historyRow).join('');
+  }
+
+  function renderSubjectsPage() {
+    $('#subjects-grid').innerHTML = CATEGORIES.map((c) => {
+      const m = subjectMeta(c);
+      const t = tally(idsIn(c));
+      const exploredOnly = Math.max(0, t.explored - t.mastered);
+      const all = COUNT_BY_CAT[c];
+      return `<article class="subject-card tone-${m.tone}">
+        <div class="subject-top">
+          <span class="subject-icon">${icon(m.icon)}</span>
+          <div><h2 class="subject-name">${esc(c)}</h2><p class="subject-count">${plural(t.total, 'question')}</p></div>
+        </div>
+        <div class="meter" role="img" aria-label="${t.mastered} of ${t.total} mastered, ${t.explored} seen">
+          <span class="m-mastered" style="width:${pct(t.mastered, t.total)}%"></span><span class="m-explored" style="width:${pct(exploredOnly, t.total)}%"></span>
+        </div>
+        <dl class="subject-figures">
+          <div><dt>Mastered</dt><dd>${t.mastered}</dd></div>
+          <div><dt>Seen</dt><dd>${t.explored}</dd></div>
+          <div><dt>First try</dt><dd>${t.accuracy == null ? '—' : `${t.accuracy}%`}</dd></div>
+        </dl>
+        <div class="subject-foot">
+          <button type="button" class="btn btn-secondary btn-sm" data-action="drill" data-subject="${esc(c)}" aria-label="Practice 10 ${esc(c)} cards">Practice 10</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-action="drill-all" data-subject="${esc(c)}" aria-label="Practice all ${all} ${esc(c)} cards">All ${all}</button>
+        </div>
+      </article>`;
+    }).join('');
   }
 
   function stat(cls, ic, value, label, sub) {
@@ -1654,6 +1679,9 @@
       }
       case 'drill':
         startSession({ mode: 'practice', size: 10, subject: el.dataset.subject });
+        break;
+      case 'drill-all':
+        startSession({ mode: 'practice', size: COUNT_BY_CAT[el.dataset.subject], subject: el.dataset.subject });
         break;
       case 'review':
         startSession({ mode: 'review', size: REVIEW_BATCH });
