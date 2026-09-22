@@ -1921,6 +1921,8 @@
       applyTheme();
       route({ quiet: true });
     });
+    if (wideScreen.addEventListener) wideScreen.addEventListener('change', placeTools);
+    else if (wideScreen.addListener) wideScreen.addListener(placeTools);
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const onScheme = () => { if (state.settings.theme === 'system') applyTheme(); };
     if (mq.addEventListener) mq.addEventListener('change', onScheme);
@@ -2343,6 +2345,20 @@
     }
   }
 
+  // ---------- Where the tools live ----------
+  const wideScreen = window.matchMedia('(min-width: 900px)');
+
+  function placeTools() {
+    const tools = $('#tools');
+    if (!tools) return;
+    const slot = wideScreen.matches ? $('#tools-slot-side') : $('#tools-slot-top');
+    if (slot && tools.parentElement !== slot) {
+      closePanels(false);
+      slot.appendChild(tools);
+    }
+    document.body.dataset.tools = wideScreen.matches ? 'side' : 'top';
+  }
+
   // ---------- Splash ----------
   function runSplash() {
     const root = document.documentElement;
@@ -2377,6 +2393,7 @@
       return;
     }
     applyTheme();
+    placeTools();
     bindEvents();
     route();
     const c = cloud();

@@ -151,6 +151,7 @@
           <span class="streak-icon"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-flame"></use></svg></span>
           <span><b data-streak>0</b> <span data-streak-label>day streak</span><small data-streak-hint>Answer a question to start</small></span>
         </div>
+        <div id="tools-slot-side"></div>
         <button type="button" class="side-link" data-action="settings" aria-haspopup="dialog"><svg class="icon" aria-hidden="true" focusable="false"><use href="#i-settings"></use></svg><span>Settings</span></button>
       </div>
     </aside>
@@ -162,34 +163,38 @@
           <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><use href="#logo"></use></svg>
           <span class="brand-name" aria-hidden="true">Flight Deck</span>
         </a>
-        <div class="top-actions">
-          <button type="button" class="top-icon" data-action="search" aria-label="Search questions" aria-haspopup="dialog">
-            <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"></use></svg>
-          </button>
-          <button type="button" class="top-icon theme-toggle" data-action="toggle-theme" id="theme-toggle" aria-label="Switch to dark mode">
-            <svg class="icon icon-moon" aria-hidden="true" focusable="false"><use href="#i-moon"></use></svg>
-            <svg class="icon icon-sun" aria-hidden="true" focusable="false"><use href="#i-sun"></use></svg>
-          </button>
-          <div class="pop-wrap">
-            <button type="button" class="top-icon" data-action="notifications" id="bell-btn" aria-label="Notifications" aria-expanded="false" aria-controls="notif-panel">
-              <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-bell"></use></svg>
-              <span class="bell-dot" id="bell-dot" hidden></span>
-            </button>
-            <section class="pop-panel notif-panel" id="notif-panel" aria-labelledby="notif-title" hidden>
-              <div class="pop-head"><h2 id="notif-title">Notifications</h2></div>
-              <ul class="notif-list" id="notif-list"></ul>
-            </section>
-          </div>
-          <div class="pop-wrap">
-            <button type="button" class="account-btn" data-action="account" id="account-btn" aria-expanded="false" aria-controls="account-panel">
-              <span class="avatar" id="account-avatar" aria-hidden="true"><svg class="icon" focusable="false"><use href="#i-user"></use></svg></span>
-              <span class="account-name" id="account-name">Sign in</span>
-              <svg class="icon icon-sm account-chev" aria-hidden="true" focusable="false"><use href="#i-chevron-down"></use></svg>
-            </button>
-            <section class="pop-panel account-panel" id="account-panel" aria-label="Account" hidden></section>
-          </div>
-        </div>
+        <div id="tools-slot-top"></div>
       </header>
+
+      <div class="tools" id="tools">
+        <button type="button" class="tool tool-search" data-action="search" aria-haspopup="dialog">
+          <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-search"></use></svg>
+          <span class="tool-label">Search</span>
+          <kbd class="kbd tool-kbd" aria-hidden="true">/</kbd>
+        </button>
+        <button type="button" class="tool tool-icon theme-toggle" data-action="toggle-theme" id="theme-toggle" aria-label="Switch to night mode">
+          <svg class="icon icon-moon" aria-hidden="true" focusable="false"><use href="#i-moon"></use></svg>
+          <svg class="icon icon-sun" aria-hidden="true" focusable="false"><use href="#i-sun"></use></svg>
+        </button>
+        <div class="pop-wrap">
+          <button type="button" class="tool tool-icon" data-action="notifications" id="bell-btn" aria-label="Notifications" aria-expanded="false" aria-controls="notif-panel">
+            <svg class="icon" aria-hidden="true" focusable="false"><use href="#i-bell"></use></svg>
+            <span class="bell-dot" id="bell-dot" hidden></span>
+          </button>
+          <section class="pop-panel notif-panel" id="notif-panel" aria-labelledby="notif-title" hidden>
+            <div class="pop-head"><h2 id="notif-title">Notifications</h2></div>
+            <ul class="notif-list" id="notif-list"></ul>
+          </section>
+        </div>
+        <div class="pop-wrap account-wrap">
+          <button type="button" class="tool account-btn" data-action="account" id="account-btn" aria-expanded="false" aria-controls="account-panel">
+            <span class="avatar" id="account-avatar" aria-hidden="true"><svg class="icon" focusable="false"><use href="#i-user"></use></svg></span>
+            <span class="account-name" id="account-name">Sign in</span>
+            <svg class="icon icon-sm account-chev" aria-hidden="true" focusable="false"><use href="#i-chevron-down"></use></svg>
+          </button>
+          <section class="pop-panel account-panel" id="account-panel" aria-label="Account" hidden></section>
+        </div>
+      </div>
 
       <main id="main" tabindex="-1">
         <noscript>
