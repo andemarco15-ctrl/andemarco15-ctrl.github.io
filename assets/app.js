@@ -1732,6 +1732,7 @@
       case 'settings':
         closePanels(false);
         openSettings();
+        renderUpdate();
         break;
       case 'toggle-theme':
         state.settings.theme = isDark() ? 'light' : 'dark';
@@ -1779,6 +1780,17 @@
         break;
       case 'delete-account':
         deleteAccount();
+        break;
+      case 'apply-update':
+        applyUpdate();
+        break;
+      case 'dismiss-update':
+        update.dismissed = update.latest;
+        renderUpdate();
+        renderBell();
+        break;
+      case 'check-update':
+        checkForUpdate({ force: true, announce: true });
         break;
       case 'privacy':
         closePanels(false);
@@ -1920,7 +1932,9 @@
     window.addEventListener('fd-auth', onAuth);
     window.addEventListener('online', () => { if (sync.user && (sync.status === 'offline' || sync.status === 'error')) pushNow(); });
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && sync.user && Date.now() - sync.lastPull > 60000) pullAndMerge();
+      if (document.visibilityState !== 'visible') return;
+      if (sync.user && Date.now() - sync.lastPull > 60000) pullAndMerge();
+      if (Date.now() - update.lastCheck > UPDATE_EVERY) checkForUpdate();
     });
     window.addEventListener('storage', (e) => {
       if (e.key !== STORE_KEY) return;
@@ -2143,6 +2157,7 @@
       const p = pct(last.correct, last.total);
       list.push({ key: `result:${last.n}`, icon: last.mode === 'exam' ? 'i-award' : 'i-check-circle', title: `Session #${last.n}: ${p}%`, body: `${last.correct} of ${last.total} correct${last.mode === 'exam' ? (p >= PASS ? ' · pass' : ' · below 70%') : ''}`, action: s && s.finishedAt && s.number === last.n ? 'view-results' : 'go-study' });
     }
+    if (update.latest && update.dismissed !== update.latest) list.unshift({ key: `update:${update.latest}`, icon: 'i-sparkles', title: `Update available: version ${update.latest}`, body: 'Reload to get the newest version.', action: 'apply-update' });
     if (!sync.user && sync.available && Object.keys(state.stats).length) list.push({ key: 'signin', icon: 'i-cloud-check', title: 'Save your progress', body: 'Sign in to keep it on every device.', action: 'open-auth' });
     if (!state.history.length && !(s && !s.finishedAt)) list.push({ key: 'welcome', icon: 'i-sparkles', title: 'Welcome to Flight Deck', body: 'Start your first set of study cards.', action: 'go-study' });
     return list;
@@ -2181,6 +2196,7 @@
     else if (action === 'review') startSession({ mode: 'review', size: REVIEW_BATCH });
     else if (action === 'view-results') navigate('results');
     else if (action === 'open-auth') openAuth('signin');
+    else if (action === 'apply-update') applyUpdate();
   }
 
   // ---------- Quick search ----------
@@ -2352,6 +2368,49 @@
     }
   }
 
+  // ---------- Version and updates ----------
+  const APP_VERSION = (document.querySelector('meta[name="app-version"]') || {}).content || '1.0';
+  const UPDATE_EVERY = 15 * 60 * 1000;
+  const update = { latest: null, lastCheck: 0, dismissed: null, timer: null };
+
+  async function checkForUpdate(opts) {
+    const o = opts || {};
+    if (!o.force && Date.now() - update.lastCheck < 60000) return update.latest;
+    update.lastCheck = Date.now();
+    try {
+      const res = await fetch(`version.json?t=${Date.now()}`, { cache: 'no-store' });
+      if (!res.ok) return null;
+      const data = await res.json();
+      const latest = typeof data.version === 'string' ? data.version.slice(0, 20) : null;
+      update.latest = latest && latest !== APP_VERSION ? latest : null;
+    } catch (e) {
+      /* offline or blocked: keep whatever we knew */
+    }
+    renderUpdate();
+    renderBell();
+    if (o.announce) {
+      toast(update.latest ? `Version ${update.latest} is available.` : `You’re on the latest version (${APP_VERSION}).`);
+    }
+    return update.latest;
+  }
+
+  function renderUpdate() {
+    const bar = $('#update-bar');
+    if (!bar) return;
+    const show = !!update.latest && update.dismissed !== update.latest;
+    bar.hidden = !show;
+    if (show) $('#update-text').textContent = `Update available: version ${update.latest}`;
+    const note = $('#settings-update-note');
+    if (note) note.textContent = update.latest ? ` · version ${update.latest} is available` : ' · up to date';
+    const ver = $('#settings-version');
+    if (ver) ver.textContent = APP_VERSION;
+  }
+
+  function applyUpdate() {
+    const url = `${location.pathname}?v=${encodeURIComponent(update.latest || Date.now())}${location.hash}`;
+    location.replace(url);
+  }
+
   // ---------- Where the tools live ----------
   const wideScreen = window.matchMedia('(min-width: 900px)');
 
@@ -2416,6 +2475,8 @@
     route();
     const c = cloud();
     if (c && c.ready) onAuth({ detail: { user: c.user, available: c.available } });
+    window.setTimeout(() => checkForUpdate(), 8000);
+    update.timer = window.setInterval(() => checkForUpdate(), UPDATE_EVERY);
   }
 
   // Expose internals for automated tests only.
