@@ -972,7 +972,20 @@
   }
 
   // ---------- Dashboard ----------
+  function greetingText() {
+    const h = new Date().getHours();
+    const part = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+    const name = sync.user ? firstName(sync.user) : '';
+    return name ? `${part}, ${name}.` : `${part}.`;
+  }
+
+  function renderGreeting() {
+    const el = $('#dash-greeting');
+    if (el) el.textContent = greetingText();
+  }
+
   function renderDashboard() {
+    renderGreeting();
     const s = state.session;
     const b = state.settings.builder;
     const hero = $('#dash-hero');
@@ -1040,39 +1053,46 @@
     $('#dash-history-list').innerHTML = hist.map(historyRow).join('');
   }
 
-  // Facts about the FAA knowledge test, kept in one place so they're easy to check.
+  // Facts about the FAA knowledge test. Every line here was checked against the
+  // FAA's own pages, the UAS ACS, 14 CFR part 107, and PSI's applicant bulletin.
   const EXAM_FACTS = [
     ['Questions', '60', 'multiple choice, three answers each'],
     ['Time limit', '2 hours', 'plenty for most people'],
     ['To pass', '70%', 'that is 42 of 60 correct'],
-    ['If you fail', '14 days', 'before you can retake it'],
+    ['Cost', '$175', 'paid to PSI when you book'],
   ];
   const EXAM_NOTES = [
-    'You take the initial knowledge test (the “UAG”) in person at an FAA-approved knowledge testing center. The center sets its own fee, so check the current amount when you book.',
-    'You get your score right after you finish. A passing result stays valid for 24 calendar months when you apply for the certificate.',
-    'Some questions refer to figures, such as a section of a sectional chart, supplied in a booklet at the testing center.',
+    'You take the initial knowledge test (the “UAG”) in person at an FAA-approved testing center. PSI is the FAA’s testing vendor, so you register, schedule, and pay through PSI — about $175. Check the current price when you book.',
+    'You get a printed score report as soon as you finish. Keep the original: it can take up to 48 hours for your result to reach IACRA, and you need it there before you can apply.',
+    'A passing result counts for 24 calendar months when you apply for the certificate.',
+    'Fail and you must wait <b>14 calendar days</b> to retake it. Bring your failed score report with you; no instructor sign-off is needed.',
+    'Some questions point to figures, such as a slice of a sectional chart. Those come in a printed supplement book (FAA-CT-8080-2) the proctor hands you.',
   ];
   const BEFORE_AFTER = [
     ['Before you go', [
-      'Be at least <b>16 years old</b>.',
-      'Be able to read, speak, write, and understand English.',
-      'Be in a physical and mental condition to fly safely.',
-      'Create an IACRA account to get an FAA Tracking Number (FTN), then book a seat at a testing center.',
-      'Bring a government-issued photo ID.',
+      'Be <b>16 or older</b> to hold the certificate. You may take the test at 14, but the FAA won’t issue the certificate until you turn 16.',
+      'Be able to read, speak, write, and understand English. The FAA can make an exception with operating limits if a medical condition prevents one of these.',
+      'Be in a physical and mental condition to fly safely. This is your own honest assessment — <b>Part 107 needs no medical exam</b>.',
+      'Create an IACRA account first to get your FAA Tracking Number (FTN). You need the FTN before you can register for the test.',
+      'Book and pay at <b>faa.psiexams.com</b>.',
+      'Bring ID showing your photo, signature, date of birth, and physical home address. A driver’s licence usually covers all four. If yours shows a P.O. box, bring a second document such as a utility bill, or PSI will turn you away and you lose the fee.',
     ]],
     ['After you pass', [
-      'Apply for the Remote Pilot Certificate in <b>IACRA</b> (FAA Form 8710-13).',
-      'The TSA runs a security background check.',
-      'Print a temporary certificate once it clears; the permanent card comes by mail.',
-      'Keep it current with free online recurrent training every <b>24 calendar months</b>.',
-      'Register your drone and follow the Remote ID rules before you fly.',
+      'Apply in <b>IACRA</b> with FAA Form 8710-13, entering the 17-digit Exam ID from your score report.',
+      'TSA runs a security background check automatically. Nothing extra to do or pay.',
+      'When it clears you can print a temporary certificate from IACRA and fly on it. It lasts 120 days.',
+      'The permanent card arrives by mail, usually in about 6 to 8 weeks.',
+      'Stay current with free online recurrent training every <b>24 calendar months</b>: course ALC-677 on faasafety.gov, or ALC-515 if you also hold a part 61 certificate with a current flight review.',
+      'Register each drone at FAADroneZone under Part 107 ($5, good for 3 years). Under Part 107 there is <b>no weight exemption</b> — even a sub-250 g drone must be registered. Mark the number on the outside, carry the certificate, and meet Remote ID.',
     ]],
   ];
   const OFFICIAL_LINKS = [
-    ['https://www.faa.gov/uas/commercial_operators/become_a_drone_pilot', 'Become a drone pilot (FAA)'],
-    ['https://www.faa.gov/sites/faa.gov/files/training_testing/testing/acs/uas_acs.pdf', 'Airman Certification Standards, what the test covers'],
+    ['https://www.faa.gov/uas/commercial_operators/become_a_drone_pilot', 'Become a drone pilot (FAA), the official step-by-step'],
+    ['https://faa.psiexams.com/faa/login', 'PSI, where you book and pay for the test'],
+    ['https://iacra.faa.gov/IACRA/', 'IACRA, for your FTN and the certificate application'],
+    ['https://www.faa.gov/sites/faa.gov/files/training_testing/testing/acs/uas_acs.pdf', 'Airman Certification Standards, exactly what the test covers'],
+    ['https://www.faa.gov/uas/getting_started/register_drone', 'Register your drone (FAADroneZone)'],
     ['https://www.ecfr.gov/current/title-14/chapter-I/subchapter-F/part-107', '14 CFR Part 107, the rules themselves'],
-    ['https://iacra.faa.gov/IACRA/', 'IACRA, where you apply for the certificate'],
   ];
 
   function renderTestPage() {
@@ -1159,9 +1179,8 @@
     $('#view-study').innerHTML = `<div class="page">
       <header class="page-head">
         <div>
-          <p class="eyebrow">Study cards</p>
+          <p class="eyebrow">FAA Part 107 · Remote Pilot knowledge test</p>
           <h1 id="study-title" tabindex="-1">Start a study session</h1>
-          <p class="page-sub">Each card is one question. Pick an answer, check it, and see why it’s right, with the FAA source one tap away.</p>
         </div>
       </header>
       <div class="study-grid">
@@ -2231,6 +2250,7 @@
   }
 
   function renderAccount() {
+    renderGreeting();
     const u = sync.user;
     const btn = $('#account-btn');
     if (!btn) return;
