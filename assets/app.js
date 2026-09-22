@@ -1133,7 +1133,7 @@
           </section>
           <section class="card side-card hide-sm">
             <h2>Keyboard shortcuts</h2>
-            <p><kbd class="kbd">A</kbd>–<kbd class="kbd">D</kbd> choose · <kbd class="kbd">Enter</kbd> check or continue · <kbd class="kbd">←</kbd> <kbd class="kbd">→</kbd> move between cards</p>
+            <p><kbd class="kbd">A</kbd>–<kbd class="kbd">D</kbd> choose · <kbd class="kbd">Enter</kbd> check or continue · <kbd class="kbd">←</kbd> <kbd class="kbd">→</kbd> move between cards · <kbd class="kbd">${esc(searchKeys)}</kbd> search</p>
           </section>
         </div>
       </div>
@@ -1865,6 +1865,13 @@
     });
 
     document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && !e.altKey && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        const search = $('#dlg-search');
+        if (search.open) $('#quick-q').select();
+        else if (!$('dialog[open]')) openSearch();
+        return;
+      }
       if (e.key === 'Escape' && $('.pop-panel:not([hidden])')) { closePanels(true); return; }
       if (e.key === 'Escape') return;
       if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -2348,6 +2355,16 @@
   // ---------- Where the tools live ----------
   const wideScreen = window.matchMedia('(min-width: 900px)');
 
+  const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+  const searchKeys = isMac ? '⌘K' : 'Ctrl K';
+
+  function labelSearchKey() {
+    const kbd = $('.tool-kbd');
+    if (kbd) kbd.textContent = searchKeys;
+    const btn = $('[data-action="search"]');
+    if (btn) btn.setAttribute('aria-keyshortcuts', isMac ? 'Meta+K' : 'Control+K');
+  }
+
   function placeTools() {
     const tools = $('#tools');
     if (!tools) return;
@@ -2394,6 +2411,7 @@
     }
     applyTheme();
     placeTools();
+    labelSearchKey();
     bindEvents();
     route();
     const c = cloud();
