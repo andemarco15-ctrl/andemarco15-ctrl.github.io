@@ -1,5 +1,5 @@
 /*
- * Part 107 Flight Deck: accounts and synced progress (Firebase Auth + Firestore).
+ * Preflight: accounts and synced progress (Firebase Auth + Firestore).
  * Loaded as a module after app.js. The app works without it; when this loads,
  * it exposes window.FlightDeckCloud and fires a "fd-auth" event on sign-in/out.
  */

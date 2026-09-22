@@ -1,4 +1,4 @@
-/* Part 107 Flight Deck: app logic. Plain JavaScript, no build step, no dependencies. */
+/* Preflight: app logic. Plain JavaScript, no build step, no dependencies. */
 (function () {
   'use strict';
 
