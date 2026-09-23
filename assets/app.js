@@ -294,6 +294,7 @@
     const gap = st.last ? daysBetween(st.last, today) : null;
     st.count = gap === 1 ? st.count + 1 : 1;
     st.last = today;
+    ui.streakLit = true;
   }
 
   function currentStreak() {
@@ -435,6 +436,8 @@
     timer: null,
     toastTimer: null,
     firstRoute: true,
+    streakLit: false,   // play the flame once, on the render after a new study day
+    flagPop: false,     // play the flag once, on the render after saving to review
   };
 
   function announce(msg) {
@@ -727,6 +730,7 @@
     if (!s || !q || s.finishedAt) return;
     const a = answerOf(s, q.id);
     a.flagged = !a.flagged;
+    if (a.flagged) ui.flagPop = true;
     if (s.mode !== 'exam' && a.result) settleMastery(q.id, a);
     save();
     announce(s.mode === 'exam' ? (a.flagged ? 'Flagged to revisit.' : 'Flag removed.') : (a.flagged ? 'Saved to your review list.' : 'Removed from your review list.'));
@@ -954,6 +958,17 @@
       el.textContent = streak === 0 ? 'Answer a question to start' : today ? 'You studied today' : 'Study today to keep it going';
     }
     for (const el of $$('.streak-card, .streak-chip')) el.classList.toggle('is-cold', streak === 0);
+    if (ui.streakLit) {
+      ui.streakLit = false;
+      if (!reducedMotion()) {
+        for (const el of $$('.streak-icon, .streak-chip .icon')) {
+          el.classList.remove('is-lit');
+          void el.offsetWidth;          // restart the animation if it is already running
+          el.classList.add('is-lit');
+          window.setTimeout(() => el.classList.remove('is-lit'), 1000);
+        }
+      }
+    }
     const chip = $('.streak-chip');
     if (chip) chip.title = `${plural(streak, 'day')} in a row`;
     const s = state.session;
@@ -1181,13 +1196,13 @@
       // missed once is not a card that keeps beating you. Both come out of stats.
       const stubborn = reviewQueue().filter((id) => {
         const st = state.stats[id] || [0, 0];
-        return st[0] >= 2 && st[1] === 0;
+        return st[0] - st[1] >= 2;   // encounters minus first-try-corrects = misses
       }).length;
       // A big pile in the headline is a reason to close the tab. Name the slice instead.
       const big = m.due > REVIEW_BATCH;
       const bits = [];
       if (big) bits.push(`${plural(m.due, 'card')} are waiting, so here is a slice you can finish now.`);
-      else if (share >= 40 && worst) bits.push(`Most of them are ${esc(worst.cat)}.`);
+      else if (m.due > 1 && share > 50 && worst) bits.push(`Most of them are ${esc(worst.cat)}.`);
       if (m.due > 1) {
         bits.push(stubborn === 0
           ? 'Not one of them has beaten you twice.'
@@ -1227,7 +1242,7 @@
         kicker: 'Every card mastered',
         line: `All ${TOTAL} cards mastered`,
         sub: 'Nothing is waiting. Come back now and then so it stays that way.',
-        label: 'Refresh 20',
+        label: `Refresh ${Math.min(m.all.mastered, 20)}`,
         action: 'refresh',
       };
     }
@@ -1246,7 +1261,7 @@
       kicker: 'All clear',
       line: 'Nothing waiting for review',
       sub: 'You have seen every card. Keep the mastered ones sharp, or start a fresh set.',
-      label: 'Refresh 20',
+      label: `Refresh ${Math.min(m.all.mastered, 20)}`,
       action: 'refresh',
     };
   }
@@ -1275,7 +1290,7 @@
       ? `<button type="button" class="btn btn-primary btn-sm" data-action="review-subject" data-subject="${esc(r.cat)}" aria-label="Review ${Math.min(r.due, REVIEW_BATCH)} ${esc(r.cat)} cards">Review ${Math.min(r.due, REVIEW_BATCH)}</button>`
       : fresh
         ? `<button type="button" class="btn btn-secondary btn-sm" data-action="drill" data-subject="${esc(r.cat)}" aria-label="Practice 10 ${esc(r.cat)} cards">Practice 10</button>`
-        : `<button type="button" class="btn btn-secondary btn-sm" data-action="refresh-subject" data-subject="${esc(r.cat)}" aria-label="Refresh 10 mastered ${esc(r.cat)} cards">Refresh 10</button>`;
+        : `<button type="button" class="btn btn-secondary btn-sm" data-action="refresh-subject" data-subject="${esc(r.cat)}" aria-label="Refresh ${Math.min(r.t.mastered, 10)} mastered ${esc(r.cat)} cards">Refresh ${Math.min(r.t.mastered, 10)}</button>`;
     const exploredOnly = Math.max(0, r.t.explored - r.t.mastered);
     return `<article class="work-row tone-${r.meta.tone}${need ? ' needs-work' : ''}" style="--i:${i}">
       <span class="work-icon">${icon(r.meta.icon)}</span>
@@ -1352,7 +1367,7 @@
             </div>`).join('')}
           </div>
           <p class="mastered-foot">
-            <button type="button" class="btn btn-secondary btn-sm" data-action="refresh">${icon('i-rotate')}Refresh 20 mastered cards</button>
+            <button type="button" class="btn btn-secondary btn-sm" data-action="refresh">${icon('i-rotate')}Refresh ${plural(Math.min(m.all.mastered, 20), 'mastered card')}</button>
             <span class="muted">A miss puts a card back on your review list.</span>
           </p>` : `<p class="empty-note">Nothing mastered yet. Get a card right on the first try and it lands here.</p>`}
       </section>`;
@@ -1615,6 +1630,16 @@
     } else if (focus === 'flag') {
       const btn = $('#btn-flag');
       if (btn) btn.focus({ preventScroll: true });
+    }
+    // The button is rebuilt on every render, so the pop is applied here rather
+    // than at the click.
+    if (ui.flagPop) {
+      ui.flagPop = false;
+      const btn = $('#btn-flag');
+      if (btn && !reducedMotion()) {
+        btn.classList.add('is-popped');
+        window.setTimeout(() => btn.classList.remove('is-popped'), 600);
+      }
     }
   }
 

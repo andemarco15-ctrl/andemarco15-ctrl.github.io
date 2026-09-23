@@ -1227,6 +1227,40 @@ body[data-env="test"] .brand-name::after {
 .info-card h3 { font-size: 16px; margin-bottom: 12px; }
 .info-card .disclaimer { margin-top: 14px; }
 
+/* ---------- Streak flame and review-flag feedback ---------- */
+/* Both play once, on the render that follows the event, and are skipped entirely
+   under reduced motion (the class is never added — see renderChrome/renderSession). */
+.streak-icon { position: relative; }
+.streak-icon.is-lit .icon,
+.streak-chip .icon.is-lit { animation: flame-up .85s cubic-bezier(.2, .8, .2, 1); transform-origin: 50% 85%; }
+.streak-icon.is-lit::after {
+  content: ""; position: absolute; inset: -6px; border-radius: 14px; pointer-events: none;
+  background: radial-gradient(circle at 50% 60%, var(--flame-soft), transparent 68%);
+  animation: flame-glow .9s ease-out forwards;
+}
+@keyframes flame-up {
+  0%   { transform: scale(1) rotate(0); }
+  30%  { transform: scale(1.32) rotate(-7deg); }
+  55%  { transform: scale(.96) rotate(4deg); }
+  78%  { transform: scale(1.08) rotate(-2deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+@keyframes flame-glow { from { opacity: .95; transform: scale(.7); } to { opacity: 0; transform: scale(1.5); } }
+
+.btn.is-popped { position: relative; }
+.btn.is-popped .icon { animation: flag-pop .5s cubic-bezier(.2, .8, .2, 1); }
+.btn.is-popped::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  border: 2px solid var(--flame); animation: flag-ring .5s ease-out forwards;
+}
+@keyframes flag-pop {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.3) rotate(-8deg); }
+  70%  { transform: scale(.95) rotate(3deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+@keyframes flag-ring { from { opacity: .8; transform: scale(1); } to { opacity: 0; transform: scale(1.12); } }
+
 /* ---------- Review page ---------- */
 .section-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: var(--text-2); margin: 30px 0 12px; }
 .muted { color: var(--text-3); font-size: 13px; }
