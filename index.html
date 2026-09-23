@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="app-version" content="1.0" data-build="16">
+  <meta name="app-version" content="1.0" data-build="17">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>[TEST] Preflight · Free FAA Part 107 drone test practice</title>
   <meta name="description" content="Free FAA Part 107 drone test practice: 250 questions across all seven subjects, each with a plain explanation and an FAA source. No sign-up.">
@@ -16,11 +16,19 @@
   <link rel="canonical" href="https://uaspart107.com/">
   <meta property="og:url" content="https://uaspart107.com/">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/icon-192.png" sizes="192x192" type="image/png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <!-- Installed-app metadata. theme-color is kept in sync with the chosen theme by applyTheme(). -->
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Preflight">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" media="print" onload="this.media='all'">
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap"></noscript>
-  <link rel="stylesheet" href="assets/styles.css?v=1.0-16">
+  <link rel="stylesheet" href="assets/styles.css?v=1.0-17">
   <script>
     /* Before the page paints: apply the saved theme, and play the splash once per visit. */
     (function () {
@@ -518,9 +526,18 @@
   <div class="toast" id="toast" aria-hidden="true" hidden></div>
   <div class="sr-only" id="live" aria-live="polite" aria-atomic="true"></div>
 
-  <script src="assets/questions.js?v=1.0-16"></script>
-  <script src="assets/firebase-config.js?v=1.0-16"></script>
-  <script src="assets/app.js?v=1.0-16"></script>
-  <script type="module" src="assets/cloud.js?v=1.0-16"></script>
+  <script src="assets/questions.js?v=1.0-17"></script>
+  <script src="assets/firebase-config.js?v=1.0-17"></script>
+  <script src="assets/app.js?v=1.0-17"></script>
+  <script type="module" src="assets/cloud.js?v=1.0-17"></script>
+  <script>
+    /* Offline support. Needs a secure context, so it simply does not register on
+       plain http (other than localhost) — the site works exactly as before. */
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').catch(function () { /* offline support unavailable */ });
+      });
+    }
+  </script>
 </body>
 </html>
