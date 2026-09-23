@@ -479,7 +479,7 @@
       const pool = (opts.ids && opts.ids.length ? opts.ids : reviewQueue()).filter(known);
       if (!pool.length) { toast('Nothing to review right now.'); return; }
       ids = shuffle(pool).slice(0, opts.size || REVIEW_BATCH);
-      note = `Reviewing ${plural(ids.length, 'card')} you missed or saved. Get one right on the first try to clear it.`;
+      note = opts.note || `Reviewing ${plural(ids.length, 'card')} you missed or saved. Get one right on the first try to clear it.`;
     } else {
       subject = mode === 'practice' && CATEGORIES.includes(opts.subject) ? opts.subject : null;
       const size = mode === 'exam' ? EXAM_SIZE : effectiveSize(Number(opts.size) || 30, subject);
@@ -825,12 +825,13 @@
   }
 
   // ---------- Routing ----------
-  const HASH = { dashboard: '#/', subjects: '#/subjects', test: '#/test', users: '#/users', study: '#/study', results: '#/study/results', questions: '#/questions' };
-  const VIEW_IDS = { dashboard: 'view-dashboard', subjects: 'view-subjects', test: 'view-test', users: 'view-users', study: 'view-study', session: 'view-session', results: 'view-results', questions: 'view-questions' };
+  const HASH = { dashboard: '#/', subjects: '#/subjects', review: '#/review', test: '#/test', users: '#/users', study: '#/study', results: '#/study/results', questions: '#/questions' };
+  const VIEW_IDS = { dashboard: 'view-dashboard', subjects: 'view-subjects', review: 'view-review', test: 'view-test', users: 'view-users', study: 'view-study', session: 'view-session', results: 'view-results', questions: 'view-questions' };
   const SITE_NAME = 'Preflight';
   const TITLES = {
     dashboard: 'Dashboard',
     subjects: 'Subjects',
+    review: 'Review',
     test: 'The test',
     users: 'Manage users',
     study: 'Study cards',
@@ -838,13 +839,14 @@
     results: 'Session results',
     questions: 'All questions',
   };
-  const HEADINGS = { dashboard: '#dash-title', subjects: '#subjects-title', test: '#test-title', users: '#users-title', study: '#study-title', results: '#results-title', questions: '#questions-title' };
+  const HEADINGS = { dashboard: '#dash-title', subjects: '#subjects-title', review: '#review-title', test: '#test-title', users: '#users-title', study: '#study-title', results: '#results-title', questions: '#questions-title' };
 
   function parseHash() {
     let h = location.hash || '';
     try { h = decodeURIComponent(h); } catch (e) { /* malformed escape: use the raw hash */ }
     const raw = h.replace(/^#\/?/, '').replace(/\/+$/, '').toLowerCase();
     if (raw === 'subjects') return 'subjects';
+    if (raw === 'review') return 'review';
     if (raw === 'test') return 'test';
     if (raw === 'users') return 'users';
     if (raw === 'study') return 'study';
@@ -888,7 +890,7 @@
     document.body.dataset.view = view;
     document.body.classList.toggle('in-session', view === 'session');
     document.title = `${TITLES[view] || 'Dashboard'} | ${SITE_NAME}`;
-    const navKey = view === 'dashboard' || view === 'subjects' ? 'dashboard' : view === 'questions' ? 'questions' : view === 'test' ? 'test' : view === 'users' ? '' : 'study';
+    const navKey = view === 'dashboard' || view === 'subjects' ? 'dashboard' : view === 'review' ? 'review' : view === 'questions' ? 'questions' : view === 'test' ? 'test' : view === 'users' ? '' : 'study';
     for (const a of $$('[data-nav]')) {
       if (a.dataset.nav === navKey) a.setAttribute('aria-current', 'page');
       else a.removeAttribute('aria-current');
@@ -898,6 +900,7 @@
     const moveFocus = !ui.firstRoute && !same;
     if (view === 'dashboard') renderDashboard();
     else if (view === 'subjects') renderSubjectsPage();
+    else if (view === 'review') renderReviewPage();
     else if (view === 'users') renderUsersPage();
     else if (view === 'test') renderTestPage();
     else if (view === 'study') renderStudy();
@@ -958,6 +961,11 @@
     for (const el of $$('[data-live-badge]')) {
       el.hidden = !active;
       if (active && el.classList.contains('nav-badge')) el.textContent = `${answeredCount(s)}/${s.ids.length}`;
+    }
+    const due = reviewQueue().length;
+    for (const el of $$('[data-review-badge]')) {
+      el.hidden = due === 0;
+      if (due && el.classList.contains('nav-badge')) el.textContent = String(due);
     }
   }
 
@@ -1135,6 +1143,228 @@
         </div>
       </article>`;
     }).join('');
+  }
+
+  // ---------- Review ----------
+  // Two questions: what needs work, and what is already mastered. Everything here
+  // is derived from the same mastery/stats the sessions write — nothing extra is stored.
+  function reviewModel() {
+    const rows = CATEGORIES.map((c) => {
+      const ids = idsIn(c);
+      const dueIds = ids.filter((id) => state.mastery[id] === 'review');
+      return {
+        cat: c,
+        meta: subjectMeta(c),
+        t: tally(ids),
+        dueIds,
+        due: dueIds.length,
+        unseen: ids.filter((id) => !isExplored(id)).length,
+        masteredIds: ids.filter((id) => state.mastery[id] === 'mastered'),
+      };
+    });
+    return {
+      rows,
+      all: tally(ALL_IDS),
+      unseen: ALL_IDS.filter((id) => !isExplored(id)).length,
+      masteredIds: ALL_IDS.filter((id) => state.mastery[id] === 'mastered'),
+      due: reviewQueue().length,
+    };
+  }
+
+  // One clear next action, chosen from the record rather than offered as a menu.
+  function reviewFocus(m) {
+    if (m.due > 0) {
+      const n = Math.min(m.due, REVIEW_BATCH);
+      const worst = m.rows.filter((r) => r.due > 0).sort((a, b) => b.due - a.due)[0];
+      const share = worst ? pct(worst.due, m.due) : 0;
+      // A pile is less daunting split by how stubborn it actually is: a card you
+      // missed once is not a card that keeps beating you. Both come out of stats.
+      const stubborn = reviewQueue().filter((id) => {
+        const st = state.stats[id] || [0, 0];
+        return st[0] >= 2 && st[1] === 0;
+      }).length;
+      // A big pile in the headline is a reason to close the tab. Name the slice instead.
+      const big = m.due > REVIEW_BATCH;
+      const bits = [];
+      if (big) bits.push(`${plural(m.due, 'card')} are waiting, so here is a slice you can finish now.`);
+      else if (share >= 40 && worst) bits.push(`Most of them are ${esc(worst.cat)}.`);
+      if (m.due > 1) {
+        bits.push(stubborn === 0
+          ? 'Not one of them has beaten you twice.'
+          : stubborn * 2 > m.due
+            ? `${stubborn} of them have caught you more than once.`
+            : `Only ${stubborn} of them have beaten you more than once.`);
+      }
+      bits.push('Get one right on the first try and it clears.');
+      // Cards on the pile this person has answered right on the first try before.
+      // A smaller set with a real chance of clearing, offered as a second option only.
+      const nearly = reviewQueue().filter((id) => (state.stats[id] || [0, 0])[1] > 0).length;
+      return {
+        kind: 'work',
+        kicker: 'Next up',
+        line: big ? `Take ${n} off your review pile` : `${plural(m.due, 'card')} waiting for another look`,
+        sub: bits.slice(0, 3).join(' '),
+        label: `Review ${n}`,
+        action: 'review',
+        second: nearly >= 3 && nearly < m.due
+          ? { label: `Finish the ${Math.min(nearly, REVIEW_BATCH)} you've had right before`, action: 'review-nearly' }
+          : null,
+      };
+    }
+    if (m.all.explored === 0) {
+      return {
+        kind: 'cold',
+        kicker: 'Start here',
+        line: 'Nothing to review yet',
+        sub: `Answer a few cards and the ones you miss gather here, ready to come back to. There are ${TOTAL} in the bank.`,
+        label: 'Practice 10',
+        action: 'drill',
+      };
+    }
+    if (m.all.mastered === m.all.total) {
+      return {
+        kind: 'done',
+        kicker: 'Every card mastered',
+        line: `All ${TOTAL} cards mastered`,
+        sub: 'Nothing is waiting. Come back now and then so it stays that way.',
+        label: 'Refresh 20',
+        action: 'refresh',
+      };
+    }
+    if (m.unseen > 0) {
+      return {
+        kind: 'fresh',
+        kicker: 'All clear',
+        line: 'Your review list is empty',
+        sub: `${plural(m.unseen, 'card')} you have not met yet. Meet a few and see which ones stick.`,
+        label: 'Practice 10',
+        action: 'drill',
+      };
+    }
+    return {
+      kind: 'clear',
+      kicker: 'All clear',
+      line: 'Nothing waiting for review',
+      sub: 'You have seen every card. Keep the mastered ones sharp, or start a fresh set.',
+      label: 'Refresh 20',
+      action: 'refresh',
+    };
+  }
+
+  const RING_C = 327; // circumference of the r=52 ring, rounded
+
+  function countUp(el, to, ms) {
+    if (!el) return;
+    if (reducedMotion() || to === 0) { el.textContent = String(to); return; }
+    const t0 = performance.now();
+    const step = (now) => {
+      const k = Math.min(1, (now - t0) / ms);
+      el.textContent = String(Math.round(to * (1 - Math.pow(1 - k, 3))));
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  function workRow(r, i) {
+    const need = r.due > 0;
+    const fresh = !need && r.unseen > 0;
+    const note = need ? `${plural(r.due, 'card')} to review`
+      : fresh ? `${plural(r.unseen, 'card')} not seen yet`
+      : `All ${r.t.total} mastered`;
+    const btn = need
+      ? `<button type="button" class="btn btn-primary btn-sm" data-action="review-subject" data-subject="${esc(r.cat)}" aria-label="Review ${Math.min(r.due, REVIEW_BATCH)} ${esc(r.cat)} cards">Review ${Math.min(r.due, REVIEW_BATCH)}</button>`
+      : fresh
+        ? `<button type="button" class="btn btn-secondary btn-sm" data-action="drill" data-subject="${esc(r.cat)}" aria-label="Practice 10 ${esc(r.cat)} cards">Practice 10</button>`
+        : `<button type="button" class="btn btn-secondary btn-sm" data-action="refresh-subject" data-subject="${esc(r.cat)}" aria-label="Refresh 10 mastered ${esc(r.cat)} cards">Refresh 10</button>`;
+    const exploredOnly = Math.max(0, r.t.explored - r.t.mastered);
+    return `<article class="work-row tone-${r.meta.tone}${need ? ' needs-work' : ''}" style="--i:${i}">
+      <span class="work-icon">${icon(r.meta.icon)}</span>
+      <div class="work-main">
+        <h3 class="work-name">${esc(r.cat)}</h3>
+        <p class="work-note">${note}</p>
+        <div class="meter" role="img" aria-label="${r.t.mastered} of ${r.t.total} mastered">
+          <span class="m-mastered" style="width:${pct(r.t.mastered, r.t.total)}%"></span><span class="m-explored" style="width:${pct(exploredOnly, r.t.total)}%"></span>
+        </div>
+      </div>
+      <div class="work-do">${btn}</div>
+    </article>`;
+  }
+
+  function renderReviewPage() {
+    const m = reviewModel();
+    const f = reviewFocus(m);
+    const p = pct(m.all.mastered, m.all.total);
+    const order = m.rows.slice().sort((a, b) =>
+      b.due - a.due || b.unseen - a.unseen || (a.t.accuracy == null ? 101 : a.t.accuracy) - (b.t.accuracy == null ? 101 : b.t.accuracy));
+    const masteredRows = m.rows.filter((r) => r.t.mastered > 0).sort((a, b) => b.t.mastered - a.t.mastered);
+
+    $('#review-page').innerHTML = `
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">FAA Part 107 · Remote Pilot knowledge test</p>
+          <h1 id="review-title" tabindex="-1">Review</h1>
+        </div>
+      </header>
+
+      <section class="focus is-${f.kind}" aria-labelledby="focus-line">
+        <div class="focus-text">
+          <p class="focus-kicker">${esc(f.kicker)}</p>
+          <h2 class="focus-line" id="focus-line">${f.line}</h2>
+          <p class="focus-sub">${f.sub}</p>
+        </div>
+        <div class="focus-do">
+          <button type="button" class="btn btn-primary" data-action="${f.action}">${esc(f.label)}</button>
+          ${f.second ? `<button type="button" class="btn btn-secondary btn-sm" data-action="${f.second.action}">${esc(f.second.label)}</button>` : ''}
+        </div>
+      </section>
+
+      <section class="overview" aria-labelledby="overview-title">
+        <h2 class="section-title" id="overview-title">Where you stand</h2>
+        <div class="overview-body">
+          <div class="ring-wrap">
+            <svg class="ring" viewBox="0 0 120 120" role="img" aria-label="${p}% of ${m.all.total} cards mastered">
+              <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+              <circle class="ring-fill" cx="60" cy="60" r="52" style="stroke-dasharray:${RING_C};stroke-dashoffset:${RING_C}"></circle>
+            </svg>
+            <p class="ring-mid" aria-hidden="true"><strong data-ring-count>0</strong><span>%</span></p>
+          </div>
+          <dl class="ring-legend">
+            <div class="leg leg-mastered"><dt>Mastered</dt><dd data-count-to="${m.all.mastered}">0</dd></div>
+            <div class="leg leg-work"><dt>Needs work</dt><dd data-count-to="${m.due}">0</dd></div>
+            <div class="leg leg-unseen"><dt>Not seen yet</dt><dd data-count-to="${m.unseen}">0</dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <section aria-labelledby="work-title">
+        <h2 class="section-title" id="work-title">What to work on</h2>
+        <div class="work-list">${order.map(workRow).join('')}</div>
+      </section>
+
+      <section aria-labelledby="mastered-title">
+        <h2 class="section-title" id="mastered-title">What you have mastered</h2>
+        ${masteredRows.length ? `
+          <div class="mastered-grid">
+            ${masteredRows.map((r) => `<div class="mastered-chip tone-${r.meta.tone}">
+              <span class="mastered-icon">${icon(r.meta.icon)}</span>
+              <span class="mastered-name">${esc(r.cat)}</span>
+              <span class="mastered-count"><strong>${r.t.mastered}</strong>/${r.t.total}</span>
+            </div>`).join('')}
+          </div>
+          <p class="mastered-foot">
+            <button type="button" class="btn btn-secondary btn-sm" data-action="refresh">${icon('i-rotate')}Refresh 20 mastered cards</button>
+            <span class="muted">A miss puts a card back on your review list.</span>
+          </p>` : `<p class="empty-note">Nothing mastered yet. Get a card right on the first try and it lands here.</p>`}
+      </section>`;
+
+    const fill = $('.ring-fill');
+    if (fill) {
+      const target = RING_C * (1 - p / 100);
+      if (reducedMotion()) fill.style.strokeDashoffset = String(target);
+      else requestAnimationFrame(() => { fill.style.strokeDashoffset = String(target); });
+    }
+    countUp($('[data-ring-count]'), p, 900);
+    for (const el of $$('[data-count-to]')) countUp(el, Number(el.dataset.countTo) || 0, 700);
   }
 
   function stat(cls, ic, value, label, sub) {
@@ -1489,9 +1719,9 @@
         </ol>
       </section>` : ''}
 
-      ${list.length || missedCount ? `<section class="section" aria-labelledby="review-title">
+      ${list.length || missedCount ? `<section class="section" aria-labelledby="results-cards-title">
         <div class="section-head">
-          <h2 id="review-title">Card review</h2>
+          <h2 id="results-cards-title">Card review</h2>
           ${missedCount ? `<div class="tabs" role="group" aria-label="Show cards">
             <button type="button" class="tab" data-action="rtab" data-tab="all" aria-pressed="${tab === 'all'}">All</button>
             <button type="button" class="tab" data-action="rtab" data-tab="missed" aria-pressed="${tab === 'missed'}">Missed (${missedCount})</button>
@@ -1763,6 +1993,28 @@
       case 'review':
         startSession({ mode: 'review', size: REVIEW_BATCH });
         break;
+      case 'review-nearly': {
+        const ids = reviewQueue().filter((id) => (state.stats[id] || [0, 0])[1] > 0);
+        if (!ids.length) { toast('Nothing on your list that you have had right before.'); break; }
+        startSession({ mode: 'review', ids, size: REVIEW_BATCH, note: `${plural(Math.min(ids.length, REVIEW_BATCH), 'card')} you have had right on the first try before. Do it again and they clear.` });
+        break;
+      }
+      case 'review-subject': {
+        const cat = el.dataset.subject;
+        const ids = reviewQueue().filter((id) => BY_ID.get(id).category === cat);
+        if (!ids.length) { toast('Nothing to review in that subject.'); break; }
+        startSession({ mode: 'review', ids, size: REVIEW_BATCH, note: `Reviewing ${plural(Math.min(ids.length, REVIEW_BATCH), 'card')} from ${cat}. Get one right on the first try to clear it.` });
+        break;
+      }
+      case 'refresh':
+      case 'refresh-subject': {
+        const cat = el.dataset.subject;
+        const pool = ALL_IDS.filter((id) => state.mastery[id] === 'mastered' && (!cat || BY_ID.get(id).category === cat));
+        if (!pool.length) { toast('Nothing mastered to refresh yet.'); break; }
+        const size = cat ? 10 : 20;
+        startSession({ mode: 'review', ids: pool, size, note: `A check on ${plural(Math.min(pool.length, size), 'card')} you have already mastered${cat ? ` in ${cat}` : ''}. Miss one and it goes back on your review list.` });
+        break;
+      }
       case 'review-missed':
         if (s && s.finishedAt) startSession({ mode: 'review', ids: summarize(s).missed, size: 100 });
         break;

@@ -1226,5 +1226,116 @@ body[data-env="test"] .brand-name::after {
 .link-list .icon { color: var(--text-3); }
 .info-card h3 { font-size: 16px; margin-bottom: 12px; }
 .info-card .disclaimer { margin-top: 14px; }
-.tabbar { grid-template-columns: repeat(4, 1fr); }
-@media (max-width: 400px) { .tabbar a { font-size: 11px; } .tabbar a .icon { width: 20px; height: 20px; } }
+
+/* ---------- Review page ---------- */
+.section-title { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: var(--text-2); margin: 30px 0 12px; }
+.muted { color: var(--text-3); font-size: 13px; }
+.empty-note { color: var(--text-2); font-size: 14px; padding: 18px; border: 1px dashed var(--line-strong); border-radius: var(--radius); background: var(--surface-2); }
+
+/* The one thing to do next. Tinted by situation, never louder than the content. */
+.focus {
+  display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+  padding: 22px 24px; border-radius: var(--radius-lg);
+  background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm);
+  position: relative; overflow: hidden;
+}
+.focus::before {
+  content: ""; position: absolute; inset: 0 auto 0 0; width: 4px;
+  background: var(--focus-tone, var(--primary));
+}
+.focus.is-work  { --focus-tone: var(--flame); }
+.focus.is-cold  { --focus-tone: var(--primary); }
+.focus.is-fresh { --focus-tone: var(--primary); }
+.focus.is-done,
+.focus.is-clear { --focus-tone: var(--success); }
+.focus-kicker {
+  font-size: 11px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+  color: var(--focus-tone, var(--primary)); margin-bottom: 6px;
+}
+.focus-line { font-size: clamp(19px, 1.2vw + 13px, 24px); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+.focus-sub { margin-top: 6px; color: var(--text-2); font-size: 14px; max-width: 56ch; }
+.focus-do { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.focus-do .btn { white-space: nowrap; }
+
+/* Mastery at a glance */
+.overview-body {
+  display: flex; align-items: center; gap: 28px; flex-wrap: wrap;
+  padding: 20px 24px; border-radius: var(--radius-lg);
+  background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-sm);
+}
+.ring-wrap { position: relative; width: 132px; height: 132px; flex: none; }
+.ring { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 12; }
+.ring-bg { stroke: var(--surface-3); }
+.ring-fill { stroke: var(--success); stroke-linecap: round; transition: stroke-dashoffset .9s cubic-bezier(.22, 1, .36, 1); }
+.ring-mid {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 1px;
+  font-weight: 700; color: var(--ink);
+}
+.ring-mid strong { font-size: 30px; letter-spacing: -0.03em; }
+.ring-mid span { font-size: 15px; color: var(--text-2); }
+.ring-legend { display: grid; gap: 10px; flex: 1 1 200px; }
+.leg { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.ring-legend .leg:last-child { border-bottom: 0; padding-bottom: 0; }
+.leg dt { font-size: 13px; color: var(--text-2); display: flex; align-items: center; gap: 8px; }
+.leg dt::before { content: ""; width: 9px; height: 9px; border-radius: 3px; background: var(--surface-3); }
+.leg-mastered dt::before { background: var(--success); }
+.leg-work dt::before { background: var(--flame); }
+.leg dd { font-size: 20px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* What to work on: one row per subject, weakest first */
+.work-list { display: grid; gap: 10px; }
+.work-row {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px;
+  padding: 14px 16px; border-radius: var(--radius); background: var(--surface);
+  border: 1px solid var(--line); box-shadow: var(--shadow-sm);
+  animation: work-in .34s ease both; animation-delay: calc(var(--i, 0) * 45ms);
+  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.work-row:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--line-strong); }
+.work-row.needs-work { border-left: 3px solid var(--tone); }
+.work-icon {
+  display: grid; place-items: center; width: 38px; height: 38px; flex: none;
+  border-radius: 11px; background: var(--tone-soft); color: var(--tone);
+}
+.work-name { font-size: 15px; font-weight: 650; color: var(--ink); }
+.work-note { font-size: 13px; color: var(--text-2); margin: 1px 0 8px; }
+.work-row .meter { max-width: 320px; }
+.work-do { flex: none; }
+@keyframes work-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* Mastered */
+.mastered-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.mastered-chip {
+  display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line);
+}
+.mastered-icon { display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 9px; background: var(--tone-soft); color: var(--tone); }
+.mastered-icon .icon { width: 17px; height: 17px; }
+.mastered-name { font-size: 14px; color: var(--text); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mastered-count { font-size: 13px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.mastered-count strong { color: var(--success-text); font-size: 15px; }
+.mastered-foot { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
+
+@media (max-width: 599.98px) {
+  .focus { padding: 18px; gap: 16px; }
+  .focus-do { width: 100%; }
+  .focus-do .btn { width: 100%; }
+  .overview-body { gap: 18px; padding: 18px; }
+  .ring-wrap { width: 108px; height: 108px; }
+  .ring-mid strong { font-size: 25px; }
+  .work-row { grid-template-columns: auto 1fr; row-gap: 10px; }
+  .work-do { grid-column: 1 / -1; }
+  .work-do .btn { width: 100%; }
+  .work-row .meter { max-width: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-row { animation: none; }
+  .work-row:hover { transform: none; }
+  .ring-fill { transition: none; }
+}
+
+.tabbar { grid-template-columns: repeat(5, 1fr); }
+.tabbar a span:not(.nav-dot) { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 400px) { .tabbar { padding-inline: 4px; } .tabbar a { font-size: 10px; gap: 2px; } .tabbar a .icon { width: 20px; height: 20px; } }
