@@ -1999,9 +1999,12 @@
       if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
       if (document.documentElement.classList.contains('splash-on')) return;
       if ($('dialog[open]')) return;
-      if (!state.settings.shortcuts && key !== 'Enter' && !key.startsWith('Arrow')) return;
       const key = typeof e.key === 'string' ? e.key : '';
       if (!key) return;
+      /* With single-key shortcuts off, only Enter and the arrows stay live. This
+         test has to come after key is declared, or it throws for everyone who
+         turns the setting off. */
+      if (!state.settings.shortcuts && key !== 'Enter' && !key.startsWith('Arrow')) return;
       const t = e.target;
       const typing = t.closest && t.closest('input:not([type="radio"]), textarea, select, [contenteditable="true"]');
 
